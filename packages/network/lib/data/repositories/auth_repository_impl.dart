@@ -14,9 +14,4 @@ class AuthRepositoryImpl implements AuthRepository {
     return UserMapper.toEntity(userDto);
   }
 
-  @override
-  Future<User> getProfile(String token) {
-    // TODO: implement getProfile
-    throw UnimplementedError();
-  }
 }
