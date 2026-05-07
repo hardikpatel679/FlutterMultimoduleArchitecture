@@ -52,11 +52,11 @@ feature/
 │            ├── page/
 │            └── viewmodel/
 │
-core/
-│  ├── di/
-│  └── constant/
-│  └── entity/
-│  └── error/
+├── core/
+│    ├── di/
+│    └── constant/
+│    └── entity/
+│    └── error/
 │
 ├── domain/
 │   └── di/
