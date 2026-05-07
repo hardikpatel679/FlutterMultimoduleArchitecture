@@ -15,3 +15,9 @@ dependencies:
     path: ../../core
   domain:
     path: ../../domain
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mocktail: ^1.0.4
+  flutter_lints: ^6.0.0
