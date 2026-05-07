@@ -32,45 +32,6 @@ This project follows:
 - **SOLID Principles**
 
 The architecture is inspired by modern scalable Flutter practices and modular application structures commonly used in enterprise applications.
-
----
-
-# 📂 Project Structure
-
-```bash
-FlutterMultimoduleArchitecture/
-│
-├── app/                        # Application layer
-│
-├── core/                       # Shared/common utilities
-│   ├── network/
-│   ├── constants/
-│   ├── utils/
-│   ├── theme/
-│   └── widgets/
-│
-├── modules/                    # Feature modules
-│   ├── auth/
-│   │   ├── data/
-│   │   ├── domain/
-│   │   └── presentation/
-│   │
-│   ├── home/
-│   │   ├── data/
-│   │   ├── domain/
-│   │   └── presentation/
-│   │
-│   └── profile/
-│
-├── shared/                     # Shared reusable components
-│
-├── dependency_injection/
-│
-├── routes/
-│
-└── main.dart
-```
-
 ---
 
 # 📦 Module Structure
@@ -80,23 +41,32 @@ Each feature module follows Clean Architecture:
 ```bash
 feature/
 │
-├── data/
-│   ├── datasource/
-│   ├── model/
-│   └── repository/
+├── auth/
+│   ├── di/
+│   └── presentation/
+│          ├── page/
+│          └── viewmodel/
+│   └──  profile/
+│       ├── di/
+│       └── presentation/
+│            ├── page/
+│            └── viewmodel/
+│
+core/
+│  ├── di/
+│  └── constant/
+│  └── entity/
+│  └── error/
 │
 ├── domain/
-│   ├── entities/
-│   ├── repository/
-│   └── usecases/
-│
-├── presentation/
-│   ├── screens/
-│   ├── widgets/
-│   ├── bloc/
-│   └── provider/
-│
-└── di/
+│   └── di/
+│   └── usecase/
+│   └── repositories/
+├── network/
+│   └── di/
+│   └── data/
+│   └── constant/
+
 ```
 
 ---
