@@ -4,6 +4,10 @@ A scalable and production-ready Flutter application architecture using a **multi
 
 This repository demonstrates how to build enterprise-level Flutter applications with better maintainability, reusability, and team scalability.
 
+
+<img width="1344" height="2992" alt="image" src="https://github.com/user-attachments/assets/0b7e7a4b-c59e-44b5-8d23-3612ea86e63b" />
+
+
 ---
 
 ## 🚀 Features
