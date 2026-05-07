@@ -58,6 +58,7 @@ class _LoginPageState extends State<LoginPage> {
 
               // Username Input
               TextField(
+                key: Key(AppStrings.username),
                 controller: _usernameController,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.person_outline),
@@ -73,6 +74,7 @@ class _LoginPageState extends State<LoginPage> {
               TextField(
                 controller: _passwordController,
                 obscureText: true,
+                key: Key(AppStrings.password),
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: const Icon(Icons.visibility_off_outlined),
