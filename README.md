@@ -32,45 +32,6 @@ This project follows:
 - **SOLID Principles**
 
 The architecture is inspired by modern scalable Flutter practices and modular application structures commonly used in enterprise applications.
-
----
-
-# 📂 Project Structure
-
-```bash
-FlutterMultimoduleArchitecture/
-│
-├── app/                        # Application layer
-│
-├── core/                       # Shared/common utilities
-│   ├── network/
-│   ├── constants/
-│   ├── utils/
-│   ├── theme/
-│   └── widgets/
-│
-├── modules/                    # Feature modules
-│   ├── auth/
-│   │   ├── data/
-│   │   ├── domain/
-│   │   └── presentation/
-│   │
-│   ├── home/
-│   │   ├── data/
-│   │   ├── domain/
-│   │   └── presentation/
-│   │
-│   └── profile/
-│
-├── shared/                     # Shared reusable components
-│
-├── dependency_injection/
-│
-├── routes/
-│
-└── main.dart
-```
-
 ---
 
 # 📦 Module Structure
@@ -80,23 +41,32 @@ Each feature module follows Clean Architecture:
 ```bash
 feature/
 │
-├── data/
-│   ├── datasource/
-│   ├── model/
-│   └── repository/
+├── auth/
+│   ├── di/
+│   └── presentation/
+│          ├── page/
+│          └── viewmodel/
+│   └──  profile/
+│       ├── di/
+│       └── presentation/
+│            ├── page/
+│            └── viewmodel/
+│
+├── core/
+│    ├── di/
+│    └── constant/
+│    └── entity/
+│    └── error/
 │
 ├── domain/
-│   ├── entities/
-│   ├── repository/
-│   └── usecases/
-│
-├── presentation/
-│   ├── screens/
-│   ├── widgets/
-│   ├── bloc/
-│   └── provider/
-│
-└── di/
+│   └── di/
+│   └── usecase/
+│   └── repositories/
+├── network/
+│   └── di/
+│   └── data/
+│   └── constant/
+
 ```
 
 ---
@@ -237,44 +207,6 @@ This helps avoid duplicate implementations.
 - Reusable Widgets
 - Repository Pattern
 - Dependency Injection
-
----
-
-# 📸 Screenshots
-
-Add your application screenshots here.
-
-```bash
-screenshots/
-```
-
----
-
-# 🚀 Future Improvements
-
-- CI/CD Integration
-- Unit Testing
-- Widget Testing
-- Localization
-- Dark Theme Support
-- Firebase Integration
-- Analytics Support
-- Code Generation
-- Melos Monorepo Support
-
----
-
-# 🤝 Contributing
-
-Contributions are welcome!
-
-If you'd like to improve this project:
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to your branch
-5. Open a Pull Request
 
 ---
 
