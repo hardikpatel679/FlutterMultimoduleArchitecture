@@ -240,16 +240,6 @@ This helps avoid duplicate implementations.
 
 ---
 
-# 📸 Screenshots
-
-Add your application screenshots here.
-
-```bash
-screenshots/
-```
-
----
-
 # ⭐ Support
 
 If you found this project useful, please consider giving it a ⭐ on GitHub.
