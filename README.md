@@ -250,34 +250,6 @@ screenshots/
 
 ---
 
-# 🚀 Future Improvements
-
-- CI/CD Integration
-- Unit Testing
-- Widget Testing
-- Localization
-- Dark Theme Support
-- Firebase Integration
-- Analytics Support
-- Code Generation
-- Melos Monorepo Support
-
----
-
-# 🤝 Contributing
-
-Contributions are welcome!
-
-If you'd like to improve this project:
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to your branch
-5. Open a Pull Request
-
----
-
 # ⭐ Support
 
 If you found this project useful, please consider giving it a ⭐ on GitHub.
