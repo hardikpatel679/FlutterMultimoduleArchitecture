@@ -1,0 +1,17 @@
+name: auth
+description: Auth feature presentation module
+version: 0.0.1
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.1.5+1
+  get_it: ^7.7.0
+  core:
+    path: ../../core
+  domain:
+    path: ../../domain

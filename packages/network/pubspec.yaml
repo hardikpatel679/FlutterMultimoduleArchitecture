@@ -1,0 +1,18 @@
+name: network
+description: Network and Data layer implementation
+version: 0.0.1
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dio: ^5.7.0
+  pretty_dio_logger: ^1.3.1
+  get_it: ^7.7.0
+  core:
+    path: ../core
+  domain:
+    path: ../domain

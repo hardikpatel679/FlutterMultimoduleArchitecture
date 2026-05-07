@@ -1,0 +1,36 @@
+name: flutter_basics
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  provider: ^6.1.5+1
+  dio: ^5.7.0
+  get_it: ^7.7.0
+  pretty_dio_logger: ^1.3.1
+  
+  # Local Modules
+  core:
+    path: packages/core
+  domain:
+    path: packages/domain
+  network:
+    path: packages/network
+  auth:
+    path: packages/features/auth
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
