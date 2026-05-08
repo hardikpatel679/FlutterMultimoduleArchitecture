@@ -21,14 +21,15 @@ class UserDto {
 
   factory UserDto.fromJson(Map<String, dynamic> json) {
     return UserDto(
-      id: json['id'],
-      username: json['username'],
-      email: json['email'],
-      firstName: json['firstName'],
-      lastName: json['lastName'],
-      gender: json['gender'],
-      image: json['image'],
-      token: json['token'],
+      id: json['id'] ?? 0,
+      username: json['username'] ?? '',
+      email: json['email'] ?? '',
+      firstName: json['firstName'] ?? '',
+      lastName: json['lastName'] ?? '',
+      gender: json['gender'] ?? '',
+      image: json['image'] ?? '',
+      // dummyjson.com uses 'accessToken' in v2 and 'token' in v1
+      token: json['accessToken'] ?? json['token'] ?? '',
     );
   }
 

@@ -8,19 +8,28 @@ class LoginViewModel extends ChangeNotifier {
 
   LoginViewModel({required this.loginUseCase});
 
-  User? _user;
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
+  User? _user;
   User? get user => _user;
 
   bool _isLoading = false;
-
   bool get isLoading => _isLoading;
 
   String? _errorMessage;
-
   String? get errorMessage => _errorMessage;
 
-  Future<void> login(String username, String password) async {
+  Future<void> login() async {
+    final username = usernameController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (username.isEmpty || password.isEmpty) {
+      _errorMessage = 'Please enter both username and password';
+      notifyListeners();
+      return;
+    }
+
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -28,11 +37,17 @@ class LoginViewModel extends ChangeNotifier {
     try {
       _user = await loginUseCase.execute(username, password);
     } catch (e) {
-      // Use the centralized ErrorHandler to map the exception to a user-friendly string
       _errorMessage = ErrorHandler.getErrorMessage(e);
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  @override
+  void dispose() {
+    usernameController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 }

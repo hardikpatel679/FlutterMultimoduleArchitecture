@@ -18,4 +18,9 @@ class AppStrings {
   static const String increment = 'Increment';
   static const String decrement = 'Decrement';
   static const String multipleOfFiveMessage = 'Counter reached a multiple of 5: ';
+
+  // Dashboard Feature
+  static const String dashboardTitle = 'Dashboard';
+  static const String welcomeDashboard = 'Welcome to the Dashboard!';
+  static const String loginSuccessSubtitle = 'You have successfully logged in.';
 }

@@ -1,5 +1,5 @@
-import 'package:auth/presentation/pages/login_page.dart';
-import 'package:auth/presentation/viewmodels/login_viewmodel.dart';
+import 'package:auth/login/login_page.dart';
+import 'package:auth/login/login_viewmodel.dart';
 import 'package:core/constants/app_strings.dart';
 import 'package:core/entities/user.dart';
 import 'package:flutter/material.dart';

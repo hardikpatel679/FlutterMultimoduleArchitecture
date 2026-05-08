@@ -1,5 +1,5 @@
 name: auth
-description: Auth feature presentation module
+description: Auth feature login module
 version: 0.0.1
 publish_to: 'none'
 
