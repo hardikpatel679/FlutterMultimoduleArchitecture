@@ -10,12 +10,14 @@ import 'package:mockito/annotations.dart';
 import 'login_page_test.mocks.dart';
 
 @GenerateMocks([LoginViewModel])
-
 void main() {
   late MockLoginViewModel mockViewModel;
 
   setUp(() {
     mockViewModel = MockLoginViewModel();
+    // Stub controllers as they are used in LoginPage
+    when(mockViewModel.usernameController).thenReturn(TextEditingController());
+    when(mockViewModel.passwordController).thenReturn(TextEditingController());
   });
 
   Widget createWidget() {
@@ -40,21 +42,12 @@ void main() {
   });
 
   testWidgets('✅ User can enter username & password', (tester) async {
-    final mockViewModel = MockLoginViewModel();
-
     // ✅ Stub ALL required properties
     when(mockViewModel.isLoading).thenReturn(false);
     when(mockViewModel.user).thenReturn(null);
     when(mockViewModel.errorMessage).thenReturn(null);
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: ChangeNotifierProvider<LoginViewModel>.value(
-          value: mockViewModel,
-          child: const LoginPage(),
-        ),
-      ),
-    );
+    await tester.pumpWidget(createWidget());
 
     await tester.pumpAndSettle();
 
@@ -70,86 +63,78 @@ void main() {
     await tester.enterText(passwordField, 'password');
 
     // ✅ Verify text entered
-    expect(find.text('emilys'), findsWidgets); // ⚠️ not findsOneWidget
+    expect(find.text('emilys'), findsWidgets);
   });
 
-    testWidgets('Login button triggers ViewModel login',
-          (WidgetTester tester) async {
+  testWidgets('Login button triggers ViewModel login', (WidgetTester tester) async {
+    when(mockViewModel.isLoading).thenReturn(false);
+    when(mockViewModel.user).thenReturn(null);
+    when(mockViewModel.errorMessage).thenReturn(null);
 
-        when(mockViewModel.isLoading).thenReturn(false);
+    when(mockViewModel.login()).thenAnswer((_) async {});
 
-        // 👇 IMPORTANT FIX
-        when(mockViewModel.user).thenReturn(null);
-        when(mockViewModel.errorMessage).thenReturn(null);
+    await tester.pumpWidget(createWidget());
 
-        when(mockViewModel.login('emilys', 'password123'))
-            .thenAnswer((_) async {});
+    await tester.enterText(find.byType(TextField).at(0), 'emilys');
+    await tester.enterText(find.byType(TextField).at(1), 'password123');
 
-        await tester.pumpWidget(createWidget());
+    await tester.tap(find.byType(ElevatedButton));
+    await tester.pump();
 
-        await tester.enterText(find.byType(TextField).at(0), 'emilys');
-        await tester.enterText(find.byType(TextField).at(1), 'password123');
+    verify(mockViewModel.login()).called(1);
+  });
 
-        await tester.tap(find.byType(ElevatedButton));
-        await tester.pump();
+  testWidgets('✅ Shows loading indicator when isLoading is true', (WidgetTester tester) async {
+    when(mockViewModel.isLoading).thenReturn(true);
+    when(mockViewModel.user).thenReturn(null);
+    when(mockViewModel.errorMessage).thenReturn(null);
 
-        verify(mockViewModel.login('emilys', 'password123')).called(1);
-      });
+    await tester.pumpWidget(createWidget());
 
-  testWidgets('✅ Shows loading indicator when isLoading is true',
-          (WidgetTester tester) async {
-        when(mockViewModel.isLoading).thenReturn(true);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+  });
 
-        await tester.pumpWidget(createWidget());
+  testWidgets('✅ Shows success Snackbar on login success', (WidgetTester tester) async {
+    when(mockViewModel.isLoading).thenReturn(false);
+    when(mockViewModel.user).thenReturn(
+      User(
+        id: 1,
+        username: 'emilys',
+        email: 'emily@test.com',
+        firstName: 'Emily',
+        lastName: 'Smith',
+        gender: 'female',
+        image: 'https://dummy.com/image.png',
+        token: 'token_123',
+      ),
+    );
+    when(mockViewModel.errorMessage).thenReturn(null);
+    when(mockViewModel.login()).thenAnswer((_) async {});
 
-        expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      });
+    await tester.pumpWidget(createWidget());
 
-  testWidgets('✅ Shows success Snackbar on login success',
-          (WidgetTester tester) async {
-        when(mockViewModel.isLoading).thenReturn(false);
-        when(mockViewModel.user).thenReturn(
-          User(
-            id: 1,
-            username: 'emilys',
-            email: 'emily@test.com',
-            firstName: 'Emily',
-            lastName: 'Smith',
-            gender: 'female',
-            image: 'https://dummy.com/image.png',
-            token: 'token_123',
-          ), // Replace with your actual model
-        );
-        when(mockViewModel.errorMessage).thenReturn(null);
-        when(mockViewModel.login(any, any))
-            .thenAnswer((_) async {});
+    await tester.enterText(find.byType(TextField).at(0), 'emilys');
+    await tester.enterText(find.byType(TextField).at(1), 'emilyspass');
 
-        await tester.pumpWidget(createWidget());
+    await tester.tap(find.byType(ElevatedButton));
+    await tester.pump(); // trigger rebuild
+    await tester.pump(const Duration(seconds: 1)); // snackbar animation
 
-        await tester.enterText(find.byType(TextField).at(0), 'emilys');
-        await tester.enterText(find.byType(TextField).at(1), 'emilyspass');
+    expect(find.byType(SnackBar), findsOneWidget);
+  });
 
-        await tester.tap(find.byType(ElevatedButton));
-        await tester.pump(); // trigger rebuild
-        await tester.pump(const Duration(seconds: 1)); // snackbar animation
+  testWidgets('❌ Shows error Snackbar on login failure', (WidgetTester tester) async {
+    when(mockViewModel.isLoading).thenReturn(false);
+    when(mockViewModel.user).thenReturn(null);
+    when(mockViewModel.errorMessage).thenReturn('Invalid credentials');
+    when(mockViewModel.login()).thenAnswer((_) async {});
 
-        expect(find.byType(SnackBar), findsOneWidget);
-      });
+    await tester.pumpWidget(createWidget());
 
-  testWidgets('❌ Shows error Snackbar on login failure',
-          (WidgetTester tester) async {
-        when(mockViewModel.isLoading).thenReturn(false);
-        when(mockViewModel.user).thenReturn(null);
-        when(mockViewModel.errorMessage).thenReturn('Invalid credentials');
-        when(mockViewModel.login(any, any))
-            .thenAnswer((_) async {});
+    await tester.tap(find.byType(ElevatedButton));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
 
-        await tester.pumpWidget(createWidget());
-
-        await tester.tap(find.byType(ElevatedButton));
-        await tester.pump();
-        await tester.pump(const Duration(seconds: 1));
-
-        expect(find.text('Invalid credentials'), findsOneWidget);
-      });
+    expect(find.text('Invalid credentials'), findsOneWidget);
+  });
 }

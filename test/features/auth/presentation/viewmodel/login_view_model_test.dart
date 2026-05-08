@@ -1,7 +1,6 @@
-import 'package:auth/presentation/viewmodels/login_viewmodel.dart';
+import 'package:auth/login/login_viewmodel.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-
 import 'package:core/entities/user.dart';
 import 'package:domain/usecases/login_usecase.dart';
 import 'package:mockito/annotations.dart';
@@ -47,7 +46,11 @@ void main() {
       when(mockLoginUseCase.execute(any, any))
           .thenAnswer((_) async => mockUser);
 
-      await viewModel.login('emilys', 'emilyspass');
+      // Set controller values instead of passing arguments
+      viewModel.usernameController.text = 'emilys';
+      viewModel.passwordController.text = 'emilyspass';
+
+      await viewModel.login();
 
       expect(viewModel.user, mockUser);
       expect(viewModel.isLoading, false);
@@ -64,7 +67,11 @@ void main() {
       when(mockLoginUseCase.execute(any, any))
           .thenThrow(exception);
 
-      await viewModel.login('emilys', 'wrongpass');
+      // Set controller values
+      viewModel.usernameController.text = 'emilys';
+      viewModel.passwordController.text = 'wrongpass';
+
+      await viewModel.login();
 
       expect(viewModel.user, null);
       expect(viewModel.isLoading, false);
@@ -83,7 +90,11 @@ void main() {
         return mockUser;
       });
 
-      final future = viewModel.login('emilys', 'emilyspass');
+      // Set controller values
+      viewModel.usernameController.text = 'emilys';
+      viewModel.passwordController.text = 'emilyspass';
+
+      final future = viewModel.login();
 
       expect(viewModel.isLoading, true);
 
@@ -104,7 +115,11 @@ void main() {
       when(mockLoginUseCase.execute(any, any))
           .thenAnswer((_) async => mockUser);
 
-      await viewModel.login('emilys', 'emilyspass');
+      // Set controller values
+      viewModel.usernameController.text = 'emilys';
+      viewModel.passwordController.text = 'emilyspass';
+
+      await viewModel.login();
 
       expect(callCount >= 2, true); // start + end
     });
