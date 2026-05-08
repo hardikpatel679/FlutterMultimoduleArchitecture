@@ -2,10 +2,10 @@ import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:flutter/foundation.dart';
-import 'package:domain/repositories/auth_repository.dart';
+import 'package:domain/repositories/login_repository.dart';
 import '../data/datasources/auth_remote_data_source.dart';
 import '../data/datasources/impl/auth_remote_data_source_impl.dart';
-import '../data/repositories/auth_repository_impl.dart';
+import '../data/repositories/login_repository_impl.dart';
 
 Future<void> initNetworkInjection(GetIt sl) async {
   final dio = sl<Dio>();
@@ -26,7 +26,7 @@ Future<void> initNetworkInjection(GetIt sl) async {
     () => AuthRemoteDataSourceImpl(dio: sl()),
   );
 
-  sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(remoteDataSource: sl()),
+  sl.registerLazySingleton<LoginRepository>(
+    () => LoginRepositoryImpl(remoteDataSource: sl()),
   );
 }

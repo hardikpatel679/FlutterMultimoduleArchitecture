@@ -6,7 +6,7 @@
 import 'dart:async' as _i5;
 
 import 'package:core/entities/user.dart' as _i3;
-import 'package:domain/repositories/auth_repository.dart' as _i2;
+import 'package:domain/repositories/login_repository.dart' as _i2;
 import 'package:domain/usecases/login_usecase.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
 
@@ -26,7 +26,7 @@ import 'package:mockito/mockito.dart' as _i1;
 // ignore_for_file: invalid_use_of_internal_member
 
 class _FakeAuthRepository_0 extends _i1.SmartFake
-    implements _i2.AuthRepository {
+    implements _i2.LoginRepository {
   _FakeAuthRepository_0(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
@@ -45,7 +45,7 @@ class MockLoginUseCase extends _i1.Mock implements _i4.LoginUseCase {
   }
 
   @override
-  _i2.AuthRepository get repository =>
+  _i2.LoginRepository get repository =>
       (super.noSuchMethod(
             Invocation.getter(#repository),
             returnValue: _FakeAuthRepository_0(
@@ -53,7 +53,7 @@ class MockLoginUseCase extends _i1.Mock implements _i4.LoginUseCase {
               Invocation.getter(#repository),
             ),
           )
-          as _i2.AuthRepository);
+          as _i2.LoginRepository);
 
   @override
   _i5.Future<_i3.User> execute(String? username, String? password) =>

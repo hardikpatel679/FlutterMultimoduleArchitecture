@@ -1,12 +1,12 @@
 import 'package:core/entities/user.dart';
-import 'package:domain/repositories/auth_repository.dart';
+import 'package:domain/repositories/login_repository.dart';
 import '../datasources/auth_remote_data_source.dart';
 import '../mappers/user_mapper.dart';
 
-class AuthRepositoryImpl implements AuthRepository {
+class LoginRepositoryImpl implements LoginRepository {
   final AuthRemoteDataSource remoteDataSource;
 
-  AuthRepositoryImpl({required this.remoteDataSource});
+  LoginRepositoryImpl({required this.remoteDataSource});
 
   @override
   Future<User> login(String username, String password) async {
