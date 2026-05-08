@@ -1,4 +1,4 @@
-# Flutter Multi Module Architecture
+# Flutter Multimodule Architecture
 
 A scalable and production-ready Flutter application architecture using a **multi-module approach** with **Clean Architecture**, **feature-first structure**, and **modular development principles**.
 
