@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:core/constants/app_strings.dart';
+import 'package:core/widgets/custom_text.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -8,7 +9,7 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.dashboardTitle),
+        title: const CustomText(AppStrings.dashboardTitle),
         actions: [
           IconButton(
             onPressed: () {
@@ -24,14 +25,14 @@ class DashboardPage extends StatelessWidget {
           children: [
             Icon(Icons.dashboard, size: 100, color: Colors.blueAccent),
             SizedBox(height: 20),
-            Text(
+            CustomText(
               AppStrings.welcomeDashboard,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              variant: TextVariant.h2,
             ),
             SizedBox(height: 10),
-            Text(
+            CustomText(
               AppStrings.loginSuccessSubtitle,
-              style: TextStyle(color: Colors.grey),
+              variant: TextVariant.subtitle,
             ),
           ],
         ),
