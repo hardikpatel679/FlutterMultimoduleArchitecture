@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
-import 'package:auth/login/login_page.dart';
-import 'package:auth/login/login_viewmodel.dart';
+import 'package:login_module/login/login_page.dart';
+import 'package:login_module/login/login_viewmodel.dart';
 import 'package:core/constants/app_strings.dart';
 import 'package:core/errors/app_exceptions.dart';
 import 'package:domain/usecases/login_usecase.dart';
@@ -33,7 +33,7 @@ void main() {
   final tUser = TestHelper.getUserFromMockJson();
 
   group('LoginPage', () {
-    testWidgets('should show success snackbar using data from JSON on successful login', (WidgetTester tester) async {
+    testWidgets('should show success snackbar using data from JSON on successful login_module', (WidgetTester tester) async {
       // Arrange
       viewModel.usernameController.text = 'emilys';
       viewModel.passwordController.text = 'emilyspass';
@@ -53,7 +53,7 @@ void main() {
       expect(find.textContaining(tUser.firstName), findsOneWidget); // Verifies 'Emily' from JSON
     });
 
-    testWidgets('should show error snackbar when login fails', (WidgetTester tester) async {
+    testWidgets('should show error snackbar when login_module fails', (WidgetTester tester) async {
       // Arrange
       viewModel.usernameController.text = 'emilys';
       viewModel.passwordController.text = 'wrong';

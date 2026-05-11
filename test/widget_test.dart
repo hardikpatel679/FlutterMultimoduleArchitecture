@@ -11,11 +11,11 @@ void main() {
     await di.init();
   });
 
-  testWidgets('App should load and show login page', (WidgetTester tester) async {
+  testWidgets('App should load and show login_module page', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
 
-    // Verify that the login page elements are present.
+    // Verify that the login_module page elements are present.
     expect(find.text(AppStrings.welcomeBack), findsOneWidget);
     expect(find.text(AppStrings.login), findsOneWidget);
   });

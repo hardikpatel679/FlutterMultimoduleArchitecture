@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:auth/login/login_viewmodel.dart';
+import 'package:login_module/login/login_viewmodel.dart';
 import 'package:domain/usecases/login_usecase.dart';
 import '../../helpers/test_helper.dart';
 
@@ -69,7 +69,7 @@ void main() {
       expect(viewModel.errorMessage, isA<String>());
     });
 
-    test('should toggle loading state during login process', () async {
+    test('should toggle loading state during login_module process', () async {
       // Arrange
       viewModel.usernameController.text = 'emilys';
       viewModel.passwordController.text = 'emilyspass';

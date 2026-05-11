@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:core/errors/app_exceptions.dart';
-import '../../constants/network_constants.dart';
 
 abstract class BaseRemoteDataSource {
   final Dio dio;

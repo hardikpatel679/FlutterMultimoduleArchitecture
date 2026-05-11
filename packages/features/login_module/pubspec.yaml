@@ -1,5 +1,5 @@
-name: auth
-description: Auth feature login module
+name: login_module
+description: Login feature module
 version: 0.0.1
 publish_to: 'none'
 

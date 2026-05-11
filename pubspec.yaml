@@ -24,8 +24,8 @@ dependencies:
     path: packages/domain
   network:
     path: packages/network
-  auth:
-    path: packages/features/auth
+  login_module:
+    path: packages/features/login_module
 
 dev_dependencies:
   flutter_test:
@@ -38,5 +38,5 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/mocks/auth/
+    - assets/mocks/login/
 

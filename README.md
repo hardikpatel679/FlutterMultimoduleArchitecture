@@ -47,12 +47,12 @@ feature/
 │
 ├── auth/
 │   ├── di/
-│   └── login/
+│   └── login_module/
 │          ├── page/
 │          └── viewmodel/
 │   └──  profile/
 │       ├── di/
-│       └── login/
+│       └── login_module/
 │            ├── page/
 │            └── viewmodel/
 │
