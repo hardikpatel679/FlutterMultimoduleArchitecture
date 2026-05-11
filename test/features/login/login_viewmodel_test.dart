@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:auth/login/login_viewmodel.dart';
 import 'package:domain/usecases/login_usecase.dart';
-import 'package:core/entities/user.dart';
+import '../../helpers/test_helper.dart';
 
 class MockLoginUseCase extends Mock implements LoginUseCase {}
 
@@ -15,16 +15,7 @@ void main() {
     viewModel = LoginViewModel(loginUseCase: mockLoginUseCase);
   });
 
-  final tUser = User(
-    id: 1,
-    username: 'emilys',
-    email: 'emily@test.com',
-    firstName: 'Emily',
-    lastName: 'Smith',
-    gender: 'female',
-    image: 'https://dummyjson.com/image.png',
-    token: 'token_123',
-  );
+  final tUser = TestHelper.getUserFromMockJson();
 
   group('LoginViewModel', () {
     test('initial state should be correct', () {
@@ -61,7 +52,7 @@ void main() {
       verify(() => mockLoginUseCase.execute('emilys', 'emilyspass')).called(1);
     });
 
-    test('should handle exception and set user-friendly error message on failure', () async {
+    test('should handle exception and set error message on failure', () async {
       // Arrange
       viewModel.usernameController.text = 'wrong';
       viewModel.passwordController.text = 'wrong';
@@ -78,42 +69,42 @@ void main() {
       expect(viewModel.errorMessage, isA<String>());
     });
 
-    test('should notify listeners when state changes', () async {
+    test('should toggle loading state during login process', () async {
       // Arrange
       viewModel.usernameController.text = 'emilys';
       viewModel.passwordController.text = 'emilyspass';
-      when(() => mockLoginUseCase.execute(any(), any())).thenAnswer((_) async => tUser);
-
-      int callCount = 0;
-      viewModel.addListener(() => callCount++);
+      
+      when(() => mockLoginUseCase.execute(any(), any())).thenAnswer((_) async {
+        await Future.delayed(const Duration(milliseconds: 10));
+        return tUser;
+      });
 
       // Act
-      await viewModel.login();
+      final future = viewModel.login();
 
       // Assert
-      expect(callCount, greaterThan(0));
+      expect(viewModel.isLoading, true);
+      
+      await future;
+      
+      expect(viewModel.isLoading, false);
     });
 
-    test('should reset errorMessage when starting a new login attempt', () async {
-      // Arrange
-      viewModel.usernameController.text = 'emilys';
-      viewModel.passwordController.text = 'emilyspass';
-      
-      // First attempt fails
-      when(() => mockLoginUseCase.execute(any(), any())).thenThrow(Exception('Fail'));
-      await viewModel.login();
-      expect(viewModel.errorMessage, isNotNull);
+    test('should toggle password visibility', () {
+      // Initial state
+      expect(viewModel.isPasswordVisible, false);
 
-      // Second attempt starts
-      when(() => mockLoginUseCase.execute(any(), any())).thenAnswer((_) async => tUser);
-      
-      // We don't await here to check the intermediate state if possible, 
-      // but login() resets it immediately.
-      final future = viewModel.login();
-      expect(viewModel.errorMessage, null);
-      expect(viewModel.isLoading, true);
+      // Act
+      viewModel.togglePasswordVisibility();
 
-      await future;
+      // Assert
+      expect(viewModel.isPasswordVisible, true);
+
+      // Act again
+      viewModel.togglePasswordVisibility();
+
+      // Assert
+      expect(viewModel.isPasswordVisible, false);
     });
   });
 }

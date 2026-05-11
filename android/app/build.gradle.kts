@@ -62,4 +62,14 @@ android {
 
 flutter {
     source = "../.."
+    // This logic ensures that when you build a specific flavor from Android Studio or CLI,
+    // the correct Dart entry point is automatically selected.
+    val taskNames = project.gradle.startParameter.taskNames
+    if (taskNames.any { it.contains("mock", ignoreCase = true) }) {
+        target = "lib/main_mock.dart"
+    } else if (taskNames.any { it.contains("prod", ignoreCase = true) }) {
+        target = "lib/main_prod.dart"
+    } else {
+        target = "lib/main.dart"
+    }
 }

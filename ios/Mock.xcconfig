@@ -1,0 +1,4 @@
+#include "Flutter/Generated.xcconfig"
+FLUTTER_TARGET=lib/main_mock.dart
+ASSET_PREFIX=mock
+BUNDLE_ID_SUFFIX=.mock

@@ -59,8 +59,15 @@ class LoginPage extends StatelessWidget {
                   controller: loginViewModel.passwordController,
                   labelText: AppStrings.password,
                   prefixIcon: Icons.lock_outline,
-                  obscureText: true,
-                  suffixIcon: const Icon(Icons.visibility_off_outlined),
+                  obscureText: !loginViewModel.isPasswordVisible,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      loginViewModel.isPasswordVisible
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                    ),
+                    onPressed: loginViewModel.togglePasswordVisibility,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Align(

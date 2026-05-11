@@ -17,8 +17,16 @@ class LoginViewModel extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  bool _isPasswordVisible = false;
+  bool get isPasswordVisible => _isPasswordVisible;
+
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
+
+  void togglePasswordVisibility() {
+    _isPasswordVisible = !_isPasswordVisible;
+    notifyListeners();
+  }
 
   Future<void> login() async {
     final username = usernameController.text.trim();
