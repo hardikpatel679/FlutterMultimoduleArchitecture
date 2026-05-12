@@ -1,0 +1,50 @@
+{
+  "appName": "اتصال",
+  "welcomeBack": "مرحباً بعودتك",
+  "loginSubtitle": "قم بتسجيل الدخول لمواصلة رحلتك.",
+  "username": "اسم المستخدم",
+  "usernameHint": "emilys",
+  "password": "كلمة المرور",
+  "forgotPassword": "هل نسيت كلمة السر؟",
+  "login": "تسجيل الدخول",
+  "orContinueWith": "أو الاستمرار مع",
+  "dontHaveAccount": "ليس لديك حساب؟ ",
+  "signUp": "اشتراك",
+  "loginSuccessful": "تم تسجيل الدخول بنجاح! أهلاً {name}",
+  "@loginSuccessful": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardTitle": "لوحة القيادة",
+  "welcomeDashboard": "مرحبا بكم في لوحة القيادة!",
+  "loginSuccessSubtitle": "لقد قمت بتسجيل الدخول بنجاح.",
+  "logout": "تسجيل الخروج",
+  "errorMessage": "خطأ: {message}",
+  "@errorMessage": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "liveUpdates": "التحديثات المباشرة: {count}",
+  "@liveUpdates": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "resetStream": "إعادة تعيين التدفق",
+  "toggleLanguage": "تبديل اللغة",
+  "errUnauthorized": "اسم المستخدم أو كلمة المرور غير صالحة. يرجى المحاولة مرة أخرى.",
+  "errNetwork": "لا يوجد اتصال بالإنترنت. يرجى التحقق من إعداداتك.",
+  "errServer": "الخادم غير متاح حاليا. يرجى المحاولة لاحقا.",
+  "errNotFound": "لم يتم العثور على المورد المطلوب.",
+  "errUnexpected": "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
+  "errMapping": "خطأ في تعيين البيانات: ",
+  "errValidation": "يرجى إدخال اسم المستخدم وكلمة المرور"
+}

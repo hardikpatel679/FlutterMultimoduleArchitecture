@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:core/errors/app_exceptions.dart';
+import 'package:core/constants/app_strings.dart';
+import 'package:core/utils/string_extensions.dart';
 
 abstract class BaseRemoteDataSource {
   final Dio dio;
@@ -85,7 +87,7 @@ abstract class BaseRemoteDataSource {
       case 500:
         return ServerException();
       default:
-        return UnknownException('Status Code: ${response.statusCode}');
+        return UnknownException(AppStrings.errUnknownWithStatus.format({'status': response.statusCode.toString()}));
     }
   }
 }

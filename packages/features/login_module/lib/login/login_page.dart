@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:core/constants/app_strings.dart';
 import 'package:core/widgets/custom_text_field.dart';
 import 'package:core/widgets/custom_text.dart';
+import 'package:core/generated/l10n/app_localizations.dart';
 import '../dashboard/dashboard_page.dart';
 import 'login_viewmodel.dart';
 
@@ -12,6 +12,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loginViewModel = context.watch<LoginViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -25,39 +26,39 @@ class LoginPage extends StatelessWidget {
               children: [
                 // Logo and Branding
                 const Icon(Icons.blur_on, size: 80, color: Colors.blueAccent),
-                const CustomText(
-                  AppStrings.appName,
+                CustomText(
+                  l10n.appName,
                   variant: TextVariant.h2,
                   letterSpacing: 2,
                 ),
                 const SizedBox(height: 40),
 
                 // Header Text
-                const CustomText(
-                  AppStrings.welcomeBack,
+                CustomText(
+                  l10n.welcomeBack,
                   variant: TextVariant.h1,
                 ),
-                const CustomText(
-                  AppStrings.loginSubtitle,
+                CustomText(
+                  l10n.loginSubtitle,
                   variant: TextVariant.subtitle,
                 ),
                 const SizedBox(height: 32),
 
                 // Username Input
                 CustomTextField(
-                  key: const Key(AppStrings.username),
+                  key: Key(l10n.username),
                   controller: loginViewModel.usernameController,
-                  labelText: AppStrings.username,
-                  hintText: AppStrings.usernameHint,
+                  labelText: l10n.username,
+                  hintText: l10n.usernameHint,
                   prefixIcon: Icons.person_outline,
                 ),
                 const SizedBox(height: 16),
 
                 // Password Input
                 CustomTextField(
-                  key: const Key(AppStrings.password),
+                  key: Key(l10n.password),
                   controller: loginViewModel.passwordController,
-                  labelText: AppStrings.password,
+                  labelText: l10n.password,
                   prefixIcon: Icons.lock_outline,
                   obscureText: !loginViewModel.isPasswordVisible,
                   suffixIcon: IconButton(
@@ -74,8 +75,8 @@ class LoginPage extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {},
-                    child: const CustomText(
-                      AppStrings.forgotPassword,
+                    child: CustomText(
+                      l10n.forgotPassword,
                       color: Colors.blueAccent,
                     ),
                   ),
@@ -93,14 +94,6 @@ class LoginPage extends StatelessWidget {
                       if (!context.mounted) return;
 
                       if (loginViewModel.user != null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: CustomText(
-                                  '${AppStrings.loginSuccessful}${loginViewModel.user!.firstName}',
-                                  color: Colors.white,
-                              )),
-                        );
-                        // successful login navigate to dashboard
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (context) => const DashboardPage()),
@@ -124,8 +117,8 @@ class LoginPage extends StatelessWidget {
                     ),
                     child: loginViewModel.isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : const CustomText(
-                            AppStrings.login,
+                        : CustomText(
+                            l10n.login,
                             color: Colors.white,
                             variant: TextVariant.button,
                           ),
@@ -135,16 +128,16 @@ class LoginPage extends StatelessWidget {
 
                 // Social Login Section
                 Row(
-                  children: const [
-                    Expanded(child: Divider()),
+                  children: [
+                    const Expanded(child: Divider()),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: CustomText(
-                        AppStrings.orContinueWith,
+                        l10n.orContinueWith,
                         variant: TextVariant.subtitle,
                       ),
                     ),
-                    Expanded(child: Divider()),
+                    const Expanded(child: Divider()),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -162,11 +155,11 @@ class LoginPage extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const CustomText(AppStrings.dontHaveAccount),
+                    CustomText(l10n.dontHaveAccount),
                     GestureDetector(
                       onTap: () {},
-                      child: const CustomText(
-                        AppStrings.signUp,
+                      child: CustomText(
+                        l10n.signUp,
                         color: Colors.blueAccent,
                         fontWeight: FontWeight.bold,
                       ),

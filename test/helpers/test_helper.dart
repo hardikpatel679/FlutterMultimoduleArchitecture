@@ -8,10 +8,10 @@ import 'package:network/data/mappers/user_mapper.dart';
 class TestHelper {
   static User getUserFromMockJson() {
     // When running 'flutter test' from root, the path starts from root
-    final file = File('assets/mocks/login/login_success.json');
+    final file = File('assets/mocks/login_success.json');
     if (!file.existsSync()) {
       // Fallback for running from inside a subfolder or package
-      final alternateFile = File('../../../assets/mocks/login/login_success.json');
+      final alternateFile = File('../../../assets/mocks/login_success.json');
       if (alternateFile.existsSync()) {
         return _parseUser(alternateFile);
       }

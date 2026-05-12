@@ -3,7 +3,7 @@ import 'api_endpoints.dart';
 class MockPaths {
   /// Maps API endpoints to their corresponding JSON asset paths.
   static const Map<String, String> mappings = {
-    ApiEndpoints.login: 'assets/mocks/login/login_success.json',
+    ApiEndpoints.login: 'assets/mocks/login_success.json',
     
     // Example for future endpoints:
     // ApiEndpoints.profile: 'assets/mocks/user/profile.json',

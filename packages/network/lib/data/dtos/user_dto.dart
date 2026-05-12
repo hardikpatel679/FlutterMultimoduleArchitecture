@@ -28,7 +28,6 @@ class UserDto {
       lastName: json['lastName']?.toString() ?? '',
       gender: json['gender']?.toString() ?? '',
       image: json['image']?.toString() ?? '',
-      // dummyjson uses 'accessToken' in recent versions
       token: json['accessToken']?.toString() ?? '',
     );
   }

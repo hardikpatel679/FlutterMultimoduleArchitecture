@@ -24,10 +24,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.hdapp.flutter_basics"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -40,6 +37,7 @@ android {
             dimension = "version"
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
+            isDefault = true
         }
         create("mock") {
             dimension = "version"
@@ -52,24 +50,45 @@ android {
     }
 
     buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+        getByName("debug") {
             signingConfig = signingConfigs.getByName("debug")
+        }
+        getByName("release") {
+            // Signing with debug keys so 'flutter run --release' works without a keystore
+            signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
 }
 
+// Professional Workaround:
+// When clicking the 'Play' button in Android Studio, it often triggers 'assembleDebug' 
+// which doesn't specify a flavor. This block ensures that 'assembleDebug' always 
+// results in a valid APK being found in the default Flutter path by fallbacking to 'dev'.
+tasks.whenTaskAdded {
+    if (name == "assembleDebug") {
+        dependsOn("assembleDevDebug")
+        finalizedBy("copyFlavoredApkToDefault")
+    }
+}
+
+tasks.register<Copy>("copyFlavoredApkToDefault") {
+    val buildDir = project.layout.buildDirectory.get().asFile
+    from("$buildDir/outputs/apk/dev/debug/app-dev-debug.apk")
+    into("$buildDir/outputs/flutter-apk/")
+    rename { "app-debug.apk" }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
 flutter {
     source = "../.."
-    // This logic ensures that when you build a specific flavor from Android Studio or CLI,
-    // the correct Dart entry point is automatically selected.
+    
+    // Auto-select target based on flavor
     val taskNames = project.gradle.startParameter.taskNames
-    if (taskNames.any { it.contains("mock", ignoreCase = true) }) {
-        target = "lib/main_mock.dart"
-    } else if (taskNames.any { it.contains("prod", ignoreCase = true) }) {
-        target = "lib/main_prod.dart"
-    } else {
-        target = "lib/main.dart"
+    when {
+        taskNames.any { it.contains("mock", ignoreCase = true) } -> target = "lib/main_mock.dart"
+        taskNames.any { it.contains("prod", ignoreCase = true) } -> target = "lib/main_prod.dart"
+        else -> target = "lib/main.dart"
     }
 }

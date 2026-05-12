@@ -16,3 +16,4 @@ dependencies:
     path: ../core
   domain:
     path: ../domain
+  graphql_flutter: ^5.3.0

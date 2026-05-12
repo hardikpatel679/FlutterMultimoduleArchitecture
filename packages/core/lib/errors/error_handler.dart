@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import '../constants/app_strings.dart';
+import '../utils/string_extensions.dart';
 import 'app_exceptions.dart';
 import 'dart:developer' as developer;
 
@@ -9,19 +11,19 @@ class ErrorHandler {
     }
 
     if (error is UnauthorizedException) {
-      return 'Invalid username or password. Please try again.';
+      return AppStrings.errUnauthorized;
     } else if (error is NetworkException) {
-      return 'No internet connection. Please check your settings.';
+      return AppStrings.errNetwork;
     } else if (error is ServerException) {
-      return 'The server is currently unavailable. Please try later.';
+      return AppStrings.errServer;
     } else if (error is NotFoundException) {
-      return 'The requested resource was not found.';
+      return AppStrings.errNotFound;
     } else if (error is AppException) {
       return error.message;
     } else if (error is TypeError) {
-      return 'Data mapping error: ${error.toString()}';
+      return AppStrings.errMapping.format({'error': error.toString()});
     } else {
-      return 'An unexpected error occurred. Please try again.';
+      return AppStrings.errUnexpected;
     }
   }
 }
