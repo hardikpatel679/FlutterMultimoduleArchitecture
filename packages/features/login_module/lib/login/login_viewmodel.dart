@@ -1,3 +1,4 @@
+import 'package:core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:core/entities/user.dart';
 import 'package:core/errors/error_handler.dart';
@@ -33,7 +34,7 @@ class LoginViewModel extends ChangeNotifier {
     final password = passwordController.text.trim();
 
     if (username.isEmpty || password.isEmpty) {
-      _errorMessage = 'Please enter both username and password';
+      _errorMessage = AppStrings.errValidation;
       notifyListeners();
       return;
     }
@@ -50,6 +51,14 @@ class LoginViewModel extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  void logout() {
+    _user = null;
+    usernameController.clear();
+    passwordController.clear();
+    _errorMessage = null;
+    notifyListeners();
   }
 
   @override

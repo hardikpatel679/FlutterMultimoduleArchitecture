@@ -1,0 +1,50 @@
+{
+  "appName": "CONNECT",
+  "welcomeBack": "Welcome Back",
+  "loginSubtitle": "Log in to continue your journey.",
+  "username": "Username",
+  "usernameHint": "emilys",
+  "password": "Password",
+  "forgotPassword": "Forgot Password?",
+  "login": "Log In",
+  "orContinueWith": "or continue with",
+  "dontHaveAccount": "Don't have an account? ",
+  "signUp": "Sign Up",
+  "loginSuccessful": "Login Successful! Welcome {name}",
+  "@loginSuccessful": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardTitle": "Dashboard",
+  "welcomeDashboard": "Welcome to the Dashboard!",
+  "loginSuccessSubtitle": "You have successfully logged in.",
+  "logout": "Logout",
+  "errorMessage": "Error: {message}",
+  "@errorMessage": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "liveUpdates": "Live Updates: {count}",
+  "@liveUpdates": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "resetStream": "Reset Stream",
+  "toggleLanguage": "Toggle Language",
+  "errUnauthorized": "Invalid username or password. Please try again.",
+  "errNetwork": "No internet connection. Please check your settings.",
+  "errServer": "The server is currently unavailable. Please try later.",
+  "errNotFound": "The requested resource was not found.",
+  "errUnexpected": "An unexpected error occurred. Please try again.",
+  "errMapping": "Data mapping error: ",
+  "errValidation": "Please enter both username and password"
+}

@@ -9,10 +9,17 @@ import '../data/datasources/auth_remote_data_source.dart';
 import '../data/datasources/impl/auth_remote_data_source_impl.dart';
 import '../data/repositories/login_repository_impl.dart';
 import '../interceptors/mock_interceptor.dart';
+import '../graphql/graphql_service.dart';
 
 Future<void> initNetworkInjection(GetIt sl) async {
   final dio = sl<Dio>();
-  
+
+  // Register GraphQLService
+  sl.registerLazySingleton(() => GraphQLService(
+        httpUri: 'http://localhost:4000',
+        wsUri: 'ws://localhost:4000/graphql',
+      ));
+
   if (kDebugMode) {
     dio.interceptors.add(PrettyDioLogger(
       requestHeader: true,
