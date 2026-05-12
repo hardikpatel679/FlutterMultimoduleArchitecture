@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:core/widgets/custom_text.dart';
 import 'package:core/viewmodels/locale_viewmodel.dart';
 import 'package:core/generated/l10n/app_localizations.dart';
-import '../login/login_page.dart';
-import '../login/login_viewmodel.dart';
-import 'dashboard_viewmodel.dart';
+import 'package:login_module/login/login_page.dart';
+import 'package:login_module/login/login_viewmodel.dart';
+import 'package:login_module/dashboard/dashboard_viewmodel.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -28,14 +28,14 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     final viewModel = context.watch<DashboardViewModel>();
     final loginViewModel = context.read<LoginViewModel>();
-    final l10n = AppLocalizations.of(context)!;
+    final localString = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: CustomText(l10n.dashboardTitle),
+        title: CustomText(localString.dashboardTitle),
         actions: [
           IconButton(
-            tooltip: l10n.logout,
+            tooltip: localString.logout,
             onPressed: () {
               viewModel.disconnect();
               loginViewModel.logout();
@@ -48,75 +48,68 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         ],
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.dashboard, size: 100, color: Colors.blueAccent),
-                      const SizedBox(height: 20),
-                      CustomText(
-                        l10n.welcomeDashboard,
-                        variant: TextVariant.h2,
-                      ),
-                      const SizedBox(height: 10),
-                      if (viewModel.isLoading)
-                        const CircularProgressIndicator()
-                      else if (viewModel.error != null)
-                        CustomText(
-                          l10n.errorMessage(viewModel.error!),
-                          color: Colors.red,
-                        )
-                      else
-                        CustomText(
-                          l10n.liveUpdates(viewModel.data ?? 0),
-                          variant: TextVariant.h3,
-                          color: Colors.green,
-                        ),
-                      const SizedBox(height: 32),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () => viewModel.resetDashboard(),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                          child: CustomText(
-                            l10n.resetStream,
-                            variant: TextVariant.button,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () => context.read<LocaleViewModel>().toggleLocale(),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                          child: CustomText(
-                            l10n.toggleLanguage,
-                            variant: TextVariant.button,
-                          ),
-                        ),
-                      ),
-                    ],
+      body: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 40),
+                const Icon(Icons.dashboard, size: 100, color: Colors.blueAccent),
+                const SizedBox(height: 20),
+                CustomText(
+                  localString.welcomeDashboard,
+                  variant: TextVariant.h2,
+                ),
+                const SizedBox(height: 10),
+                if (viewModel.isLoading)
+                  const CircularProgressIndicator()
+                else if (viewModel.error != null)
+                  CustomText(
+                    localString.errorMessage(viewModel.error!),
+                    color: Colors.red,
+                  )
+                else
+                  CustomText(
+                    localString.liveUpdates(viewModel.data ?? 0),
+                    variant: TextVariant.h3,
+                    color: Colors.green,
+                  ),
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => viewModel.resetDashboard(),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: CustomText(
+                      localString.resetStream,
+                      variant: TextVariant.button,
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => context.read<LocaleViewModel>().toggleLocale(),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: CustomText(
+                      localString.toggleLanguage,
+                      variant: TextVariant.button,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }

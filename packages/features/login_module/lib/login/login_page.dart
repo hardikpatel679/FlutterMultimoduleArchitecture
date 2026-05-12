@@ -12,7 +12,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loginViewModel = context.watch<LoginViewModel>();
-    final l10n = AppLocalizations.of(context)!;
+    final localString = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -27,7 +27,7 @@ class LoginPage extends StatelessWidget {
                 // Logo and Branding
                 const Icon(Icons.blur_on, size: 80, color: Colors.blueAccent),
                 CustomText(
-                  l10n.appName,
+                  localString.appName,
                   variant: TextVariant.h2,
                   letterSpacing: 2,
                 ),
@@ -35,30 +35,30 @@ class LoginPage extends StatelessWidget {
 
                 // Header Text
                 CustomText(
-                  l10n.welcomeBack,
+                  localString.welcomeBack,
                   variant: TextVariant.h1,
                 ),
                 CustomText(
-                  l10n.loginSubtitle,
+                  localString.loginSubtitle,
                   variant: TextVariant.subtitle,
                 ),
                 const SizedBox(height: 32),
 
                 // Username Input
                 CustomTextField(
-                  key: Key(l10n.username),
+                  key: Key(localString.username),
                   controller: loginViewModel.usernameController,
-                  labelText: l10n.username,
-                  hintText: l10n.usernameHint,
+                  labelText: localString.username,
+                  hintText: localString.usernameHint,
                   prefixIcon: Icons.person_outline,
                 ),
                 const SizedBox(height: 16),
 
                 // Password Input
                 CustomTextField(
-                  key: Key(l10n.password),
+                  key: Key(localString.password),
                   controller: loginViewModel.passwordController,
-                  labelText: l10n.password,
+                  labelText: localString.password,
                   prefixIcon: Icons.lock_outline,
                   obscureText: !loginViewModel.isPasswordVisible,
                   suffixIcon: IconButton(
@@ -76,7 +76,7 @@ class LoginPage extends StatelessWidget {
                   child: TextButton(
                     onPressed: () {},
                     child: CustomText(
-                      l10n.forgotPassword,
+                      localString.forgotPassword,
                       color: Colors.blueAccent,
                     ),
                   ),
@@ -118,7 +118,7 @@ class LoginPage extends StatelessWidget {
                     child: loginViewModel.isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
                         : CustomText(
-                            l10n.login,
+                            localString.login,
                             color: Colors.white,
                             variant: TextVariant.button,
                           ),
@@ -133,7 +133,7 @@ class LoginPage extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: CustomText(
-                        l10n.orContinueWith,
+                        localString.orContinueWith,
                         variant: TextVariant.subtitle,
                       ),
                     ),
@@ -155,11 +155,11 @@ class LoginPage extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CustomText(l10n.dontHaveAccount),
+                    CustomText(localString.dontHaveAccount),
                     GestureDetector(
                       onTap: () {},
                       child: CustomText(
-                        l10n.signUp,
+                        localString.signUp,
                         color: Colors.blueAccent,
                         fontWeight: FontWeight.bold,
                       ),
