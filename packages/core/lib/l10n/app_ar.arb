@@ -38,6 +38,14 @@
       }
     }
   },
+  "batteryLevel": "مستوى البطارية: {level}%",
+  "@batteryLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
   "resetStream": "إعادة تعيين التدفق",
   "toggleLanguage": "تبديل اللغة",
   "errUnauthorized": "اسم المستخدم أو كلمة المرور غير صالحة. يرجى المحاولة مرة أخرى.",

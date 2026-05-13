@@ -34,9 +34,11 @@ void main() {
     when(() => mockDashboardViewModel.isLoading).thenReturn(false);
     when(() => mockDashboardViewModel.data).thenReturn(0);
     when(() => mockDashboardViewModel.error).thenReturn(null);
+    when(() => mockDashboardViewModel.batteryLevel).thenReturn(null);
     when(() => mockDashboardViewModel.connect()).thenReturn(null);
     when(() => mockDashboardViewModel.disconnect()).thenReturn(null);
     when(() => mockDashboardViewModel.resetDashboard()).thenReturn(null);
+    when(() => mockDashboardViewModel.fetchBatteryLevel()).thenAnswer((_) async {});
     
     when(() => mockLoginViewModel.logout()).thenReturn(null);
     when(() => mockLoginViewModel.isPasswordVisible).thenReturn(false);
@@ -72,9 +74,18 @@ void main() {
   }
 
   group('DashboardPage', () {
-    testWidgets('should call connect on init', (WidgetTester tester) async {
+    testWidgets('should call connect and fetchBatteryLevel on init', (WidgetTester tester) async {
       await tester.pumpWidget(createWidgetUnderTest());
       verify(() => mockDashboardViewModel.connect()).called(1);
+      verify(() => mockDashboardViewModel.fetchBatteryLevel()).called(1);
+    });
+
+    testWidgets('should display battery level when available', (WidgetTester tester) async {
+      when(() => mockDashboardViewModel.batteryLevel).thenReturn(75);
+      
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      expect(find.textContaining('75%'), findsOneWidget);
     });
 
     testWidgets('should display live updates data', (WidgetTester tester) async {

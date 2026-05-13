@@ -1,6 +1,6 @@
 import 'package:core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
-import 'package:core/entities/user.dart';
+import 'package:domain/entities/user.dart';
 import 'package:core/errors/error_handler.dart';
 import 'package:domain/usecases/login_usecase.dart';
 

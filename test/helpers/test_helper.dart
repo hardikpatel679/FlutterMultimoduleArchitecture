@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:core/entities/user.dart';
+import 'package:domain/entities/user.dart';
 import 'package:network/data/dtos/user_dto.dart';
 import 'package:network/data/mappers/user_mapper.dart';
 

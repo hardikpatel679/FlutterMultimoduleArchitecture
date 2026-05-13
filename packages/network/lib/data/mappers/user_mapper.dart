@@ -1,4 +1,4 @@
-import 'package:core/entities/user.dart';
+import 'package:domain/entities/user.dart';
 import '../dtos/user_dto.dart';
 
 class UserMapper {

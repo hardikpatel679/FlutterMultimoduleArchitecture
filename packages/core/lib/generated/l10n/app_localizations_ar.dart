@@ -69,6 +69,11 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String batteryLevel(int level) {
+    return 'مستوى البطارية: $level%';
+  }
+
+  @override
   String get resetStream => 'إعادة تعيين التدفق';
 
   @override

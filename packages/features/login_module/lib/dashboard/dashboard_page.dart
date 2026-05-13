@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:core/widgets/custom_text.dart';
 import 'package:core/viewmodels/locale_viewmodel.dart';
 import 'package:core/generated/l10n/app_localizations.dart';
-import 'package:login_module/login/login_page.dart';
-import 'package:login_module/login/login_viewmodel.dart';
-import 'package:login_module/dashboard/dashboard_viewmodel.dart';
+import '../login/login_page.dart';
+import '../login/login_viewmodel.dart';
+import 'dashboard_viewmodel.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -18,9 +18,10 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
-    // Start the stream connection when the page is initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DashboardViewModel>().connect();
+      final viewModel = context.read<DashboardViewModel>();
+      viewModel.connect();
+      viewModel.fetchBatteryLevel();
     });
   }
 
@@ -63,6 +64,16 @@ class _DashboardPageState extends State<DashboardPage> {
                   variant: TextVariant.h2,
                 ),
                 const SizedBox(height: 10),
+                
+                // Battery Level Display
+                if (viewModel.batteryLevel != null)
+                  CustomText(
+                    localString.batteryLevel(viewModel.batteryLevel!),
+                    variant: TextVariant.h3,
+                    color: Colors.blueGrey,
+                  ),
+                const SizedBox(height: 20),
+
                 if (viewModel.isLoading)
                   const CircularProgressIndicator()
                 else if (viewModel.error != null)

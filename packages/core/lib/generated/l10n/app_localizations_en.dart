@@ -69,6 +69,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String batteryLevel(int level) {
+    return 'Battery Level: $level%';
+  }
+
+  @override
   String get resetStream => 'Reset Stream';
 
   @override
