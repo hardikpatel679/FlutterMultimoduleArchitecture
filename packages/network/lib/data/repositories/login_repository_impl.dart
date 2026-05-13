@@ -1,4 +1,4 @@
-import 'package:core/entities/user.dart';
+import 'package:domain/entities/user.dart';
 import 'package:domain/repositories/login_repository.dart';
 import '../datasources/auth_remote_data_source.dart';
 import '../mappers/user_mapper.dart';

@@ -206,6 +206,12 @@ abstract class AppLocalizations {
   /// **'Live Updates: {count}'**
   String liveUpdates(Object count);
 
+  /// No description provided for @batteryLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery Level: {level}%'**
+  String batteryLevel(int level);
+
   /// No description provided for @resetStream.
   ///
   /// In en, this message translates to:

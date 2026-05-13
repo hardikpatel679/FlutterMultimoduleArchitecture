@@ -38,6 +38,14 @@
       }
     }
   },
+  "batteryLevel": "Battery Level: {level}%",
+  "@batteryLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
   "resetStream": "Reset Stream",
   "toggleLanguage": "Toggle Language",
   "errUnauthorized": "Invalid username or password. Please try again.",

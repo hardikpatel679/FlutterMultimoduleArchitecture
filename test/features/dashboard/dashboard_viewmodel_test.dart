@@ -1,11 +1,17 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:login_module/dashboard/dashboard_viewmodel.dart';
+import 'package:core/services/battery_service.dart';
+
+class MockBatteryService extends Mock implements BatteryService {}
 
 void main() {
   late DashboardViewModel viewModel;
+  late MockBatteryService mockBatteryService;
 
   setUp(() {
-    viewModel = DashboardViewModel();
+    mockBatteryService = MockBatteryService();
+    viewModel = DashboardViewModel(batteryService: mockBatteryService);
   });
 
   group('DashboardViewModel', () {
@@ -13,6 +19,19 @@ void main() {
       expect(viewModel.data, null);
       expect(viewModel.isLoading, false);
       expect(viewModel.error, null);
+      expect(viewModel.batteryLevel, null);
+    });
+
+    test('fetchBatteryLevel should update batteryLevel', () async {
+      // Arrange
+      when(() => mockBatteryService.getBatteryLevel()).thenAnswer((_) async => 85);
+
+      // Act
+      await viewModel.fetchBatteryLevel();
+
+      // Assert
+      expect(viewModel.batteryLevel, 85);
+      verify(() => mockBatteryService.getBatteryLevel()).called(1);
     });
 
     test('connect should start streaming data', () async {
@@ -47,8 +66,9 @@ void main() {
       expect(viewModel.data, 0); // Still 0, didn't update to 1
     });
 
-    test('resetDashboard should reconnect the stream', () async {
+    test('resetDashboard should reconnect the stream and fetch battery', () async {
       // Arrange
+      when(() => mockBatteryService.getBatteryLevel()).thenAnswer((_) async => 90);
       viewModel.connect();
       await Future.delayed(const Duration(milliseconds: 1100));
       expect(viewModel.data, 0);
@@ -62,6 +82,7 @@ void main() {
       await Future.delayed(const Duration(milliseconds: 1100));
       expect(viewModel.data, 0); // New stream starts at 0
       expect(viewModel.isLoading, false);
+      expect(viewModel.batteryLevel, 90);
     });
   });
 }

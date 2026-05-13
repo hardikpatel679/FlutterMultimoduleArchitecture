@@ -2,21 +2,22 @@
 
 A scalable and production-ready Flutter application architecture using a **multi-module approach** with **Clean Architecture**, **MVVM**, and **Flavor-driven development**.
 
-This project demonstrates how to build enterprise-level applications with strictly separated layers, reactive state management, and a robust mocking system for offline development.
+This project demonstrates how to build enterprise-level applications with strictly separated layers, reactive state management, and a robust infrastructure for both REST and GraphQL.
 
 ---
 
 ## 🚀 Key Features
 
 - **Multi-Module Structure**: Decoupled packages for `core`, `domain`, `network`, and feature-specific modules (`login_module`).
-- **Clean Architecture & MVVM**: Separation of concerns between UI (View), State/Logic (ViewModel), Business Rules (Domain), and Infrastructure (Data).
-- **Advanced Flavor Support**: Native configuration for `dev`, `mock`, and `prod` environments on both Android and iOS.
-- **Smart Mocking System**: A generic `MockInterceptor` that serves local JSON responses from assets based on API endpoints—ideal for offline development.
-- **GraphQL Integration**: Built-in support for GraphQL Queries, Mutations, and **Reactive Subscriptions** (Streams).
-- **Global Localization (l10n)**: Comprehensive support for English and **Arabic (RTL)** with automatic layout mirroring and parameterized translations.
-- **Reusable Component Library**: Standardized `CustomText` and `CustomTextField` components in the `core` module.
-- **Reactive Base ViewModels**: Specialized `BaseStreamViewModel` for handling real-time data streams with automatic memory management.
-- **Robust Testing**: Comprehensive Unit and Widget testing suite using `mocktail` and JSON-driven test helpers.
+- **Clean Architecture & MVVM**: Strict separation of concerns. The `domain` layer contains pure business logic and entities, completely isolated from infrastructure and UI.
+- **Advanced Flavor Support**: Native configuration for `dev`, `mock`, and `prod` environments on both Android and iOS with unique Bundle IDs and Application IDs.
+- **Zero-Config Play Button**: Optimized Gradle and XCConfig setup that allows team members to run the app using the standard IDE Play button with automatic fallback to the `dev` flavor.
+- **Smart Mocking System**: A generic `MockInterceptor` for Dio that serves local JSON responses from assets based on API endpoints—perfect for offline development.
+- **GraphQL & Streaming**: Built-in support for GraphQL Queries, Mutations, and **Subscriptions**.
+- **Reactive Base ViewModels**: Specialized `BaseStreamViewModel` for handling real-time data streams (WebSockets/GraphQL) with built-in `connect()`, `disconnect()`, and automatic memory management.
+- **Global Localization (l10n)**: Full support for English and **Arabic (RTL)** with automatic layout mirroring and **parameterized translations** for dynamic content.
+- **Core Services**: Example implementations like `BatteryService` demonstrating how to provide platform-specific data through the `core` module.
+- **Robust Testing**: Comprehensive Unit and Widget testing suite using `mocktail` and JSON-driven test helpers that verify mapping logic from raw assets.
 
 ---
 
@@ -26,10 +27,10 @@ The project follows a strict dependency rule: **Dependencies point inwards.**
 
 | Module | Responsibility |
 | :--- | :--- |
-| **`core`** | Foundation: Shared widgets, Base ViewModels, Localization, Error Handling, and global entities. |
-| **`domain`** | Business Logic: UseCases and Repository interfaces. Pure Dart, no dependencies on UI or Network. |
-| **`network`** | Infrastructure: Dio implementation, GraphQL service, DTOs, Mappers, and Interceptors. |
-| **`login_module`** | Feature: Specific UI implementation and ViewModels for authentication. |
+| **`core`** | Foundation: Shared widgets, Base ViewModels, Localization, Error Handling, and Global Services (e.g., Battery). |
+| **`domain`** | The Heart: Pure business logic. Contains **Entities**, UseCases, and Repository interfaces. No dependencies on Flutter or Network. |
+| **`network`** | Infrastructure: Dio implementation, GraphQL service, DTOs, Mappers, and Interceptors. Implements Domain repositories. |
+| **`login_module`** | Feature: Specific UI implementation (Pages) and ViewModels. Depends only on `core`, `domain`, and `network`. |
 
 ---
 
@@ -38,32 +39,32 @@ The project follows a strict dependency rule: **Dependencies point inwards.**
 ```bash
 lib/
 ├── di/                # Global Service Locator (GetIt)
-├── providers/         # Global Provider registration
+├── providers/         # Global Provider registration (Locale, Auth, etc.)
 └── main_*.dart        # Entry points for flavors (Dev, Mock, Prod)
 
 packages/
-├── core/              # Shared logic, widgets, and localization
-├── domain/            # UseCases and Repository contracts
-├── network/           # API Implementation (Dio, GraphQL, Mappers)
+├── core/              # Shared logic, widgets, localization, and base services
+├── domain/            # Business rules and Entities (The "Truth")
+├── network/           # API Implementation (Dio, GraphQL, Mappers, DTOs)
 └── features/
-    └── login_module/  # Encapsulated Login feature
+    └── login_module/  # Encapsulated Login & Dashboard features
 ```
 
 ---
 
 ## 🎨 Flavors & Environments
 
-This project uses native product flavors. Each flavor can have its own unique Application ID, Suffix, and Entry point.
+Each flavor is configured at the native level (Gradle/Xcode) to ensure consistency.
 
-| Flavor | Purpose | Entry Point | API Source |
-| :--- | :--- | :--- | :--- |
-| **Dev** | Development | `main.dart` | Real Backend API |
-| **Mock** | Offline/Demo | `main_mock.dart` | Local JSON Assets |
-| **Prod** | App Store | `main_prod.dart` | Production Server |
+| Flavor | Purpose | Entry Point | API Source | ID Suffix |
+| :--- | :--- | :--- | :--- | :--- |
+| **Dev** | Development | `main.dart` | Real Backend API | `.dev` |
+| **Mock** | Offline/Demo | `main_mock.dart` | Local JSON Assets | `.mock` |
+| **Prod** | App Store | `main_prod.dart` | Production Server | (None) |
 
 ### How to Run:
 ```bash
-# Run Dev flavor
+# Run Dev flavor (Default)
 flutter run --flavor dev
 
 # Run Mock flavor (Uses local JSON)
@@ -77,23 +78,25 @@ flutter run --flavor prod -t lib/main_prod.dart
 
 ## 🌍 Localization
 
-The app supports **English** and **Arabic**.
-1. Add strings to `packages/core/lib/l10n/*.arb`.
+The app uses the official Flutter `intl` system.
+1. Add/Edit strings in `packages/core/lib/l10n/*.arb`.
 2. Generate Dart code:
    ```bash
    cd packages/core
    flutter gen-l10n
    ```
-3. Use in UI: `AppLocalizations.of(context)!.yourString`.
+3. Use in UI: `AppLocalizations.of(context)!.yourKey`.
+   - Supports parameters: `translations.welcomeMessage(userName)`
+   - Supports RTL: Layouts automatically flip for Arabic.
 
 ---
 
 ## 🧪 Testing
 
-The project uses `mocktail` for dependency-free mocking and includes a `TestHelper` that uses the same JSON assets as the Mock flavor.
+The project emphasizes testing the data flow from raw JSON to the UI.
 
 ```bash
-# Run all tests
+# Run all tests from root
 flutter test
 
 # Run specific module tests

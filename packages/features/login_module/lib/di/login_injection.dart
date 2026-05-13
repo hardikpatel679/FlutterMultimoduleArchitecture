@@ -4,5 +4,5 @@ import '../dashboard/dashboard_viewmodel.dart';
 
 Future<void> initLoginInjection(GetIt sl) async {
   sl.registerFactory(() => LoginViewModel(loginUseCase: sl()));
-  sl.registerFactory(() => DashboardViewModel());
+  sl.registerFactory(() => DashboardViewModel(batteryService: sl()));
 }
