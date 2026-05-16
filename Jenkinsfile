@@ -37,7 +37,7 @@ pipeline {
         success {
             echo 'Pipeline completed successfully!'
             // Automatically searches the actual Jenkins workspace for the compiled package
-            archiveArtifacts artifacts: '**/build/app/outputs/flutter-apk/app-release.apk', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'FlutterMultimoduleArchitecture/build/app/outputs/flutter-apk/app-release.apk', allowEmptyArchive: true
         }
         failure {
             echo 'Pipeline failed. Check build logs for specific compilation errors.'
