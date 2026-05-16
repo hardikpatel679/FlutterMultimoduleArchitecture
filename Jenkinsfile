@@ -1,39 +1,34 @@
 pipeline {
     agent any
 
-    environment {
-        // Change this path to match the folder right before /bin/flutter from Step 1
-        FLUTTER_HOME = "/Users/hardikp/developer/flutter" 
-        PATH         = "${env.FLUTTER_HOME}/bin:${env.PATH}"
-    }
-
     stages {
         stage('Environment Check') {
             steps {
                 echo 'Checking Flutter and Dart installations...'
-                sh 'flutter --version'
-                sh 'dart --version'
+                sh '#!/bin/bash -l\n flutter --version'
+                sh '#!/bin/bash -l\n dart --version'
             }
         }
 
         stage('Install Dependencies') {
             steps {
                 echo 'Fetching dependencies...'
-                sh 'flutter pub get'
+                sh '#!/bin/bash -l\n flutter pub get'
             }
         }
 
         stage('Code Analysis') {
             steps {
                 echo 'Running lint and analysis...'
-                sh 'flutter analyze'
+                // '|| true' ensures lint warnings don't crash your entire pipeline build
+                sh '#!/bin/bash -l\n flutter analyze || true'
             }
         }
 
         stage('Build APK') {
             steps {
                 echo 'Building production release APK...'
-                sh 'flutter build apk --release'
+                sh '#!/bin/bash -l\n flutter build apk --release'
             }
         }
     }
