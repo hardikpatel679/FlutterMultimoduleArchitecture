@@ -16,8 +16,8 @@ This project demonstrates how to build enterprise-level applications with strict
 - **GraphQL & Streaming**: Built-in support for GraphQL Queries, Mutations, and **Subscriptions**.
 - **Reactive Base ViewModels**: Specialized `BaseStreamViewModel` for handling real-time data streams (WebSockets/GraphQL) with built-in `connect()`, `disconnect()`, and automatic memory management.
 - **Global Localization (l10n)**: Full support for English and **Arabic (RTL)** with automatic layout mirroring and **parameterized translations** for dynamic content.
-- **Core Services**: Example implementations like `BatteryService` demonstrating how to provide platform-specific data through the `core` module.
-- **Robust Testing**: Comprehensive Unit and Widget testing suite using `mocktail` and JSON-driven test helpers that verify mapping logic from raw assets.
+- **Patrol-Enhanced Integration Testing**: A high-stability automation suite utilizing **Patrol** finders and a specialized **Master Test Suite** for sequential execution.
+- **iOS-Optimized Automation**: Custom synchronization logic ("Native Pulse") and `benchmark` frame policies to resolve common iOS simulator hangs during UI testing.
 
 ---
 
@@ -48,6 +48,11 @@ packages/
 ├── network/           # API Implementation (Dio, GraphQL, Mappers, DTOs)
 └── features/
     └── login_module/  # Encapsulated Login & Dashboard features
+
+integration_test/      # UI Automation Suite
+├── login_flow_test.dart
+├── dashboard_flow_test.dart
+└── master_suite_test.dart # Central entry point for sequential execution
 ```
 
 ---
@@ -56,11 +61,11 @@ packages/
 
 Each flavor is configured at the native level (Gradle/Xcode) to ensure consistency.
 
-| Flavor | Purpose | Entry Point | API Source | ID Suffix |
+| Flavor | Purpose | Entry Point | API Source | Bundle ID |
 | :--- | :--- | :--- | :--- | :--- |
-| **Dev** | Development | `main.dart` | Real Backend API | `.dev` |
-| **Mock** | Offline/Demo | `main_mock.dart` | Local JSON Assets | `.mock` |
-| **Prod** | App Store | `main_prod.dart` | Production Server | (None) |
+| **Dev** | Development | `main.dart` | Real Backend API | `com.hdapp.flutterBasics.dev` |
+| **Mock** | Offline/Demo | `main_mock.dart` | Local JSON Assets | `com.hdapp.flutterBasics.mock` |
+| **Prod** | App Store | `main_prod.dart` | Production Server | `com.hdapp.flutterBasics` |
 
 ### How to Run:
 ```bash
@@ -68,10 +73,10 @@ Each flavor is configured at the native level (Gradle/Xcode) to ensure consisten
 flutter run --flavor dev
 
 # Run Mock flavor (Uses local JSON)
-flutter run --flavor mock
+flutter run --flavor mock --target lib/main_mock.dart
 
 # Run Prod flavor
-flutter run --flavor prod -t lib/main_prod.dart
+flutter run --flavor prod --target lib/main_prod.dart
 ```
 
 ---
@@ -86,23 +91,33 @@ The app uses the official Flutter `intl` system.
    flutter gen-l10n
    ```
 3. Use in UI: `AppLocalizations.of(context)!.yourKey`.
-   - Supports parameters: `translations.welcomeMessage(userName)`
    - Supports RTL: Layouts automatically flip for Arabic.
 
 ---
 
 ## 🧪 Testing
 
-The project emphasizes testing the data flow from raw JSON to the UI.
+The project emphasizes a 3-tier testing strategy.
 
+### 1. Unit & Widget Tests
 ```bash
-# Run all tests from root
-flutter test
-
-# Run specific module tests
-cd packages/features/login_module
+# Run all unit tests from root
 flutter test
 ```
+
+### 2. Integration Tests (Full UI Automation)
+The suite is optimized for iOS and Android, using a **Master Suite** to run full user journeys in one app launch.
+
+```bash
+# Run the complete Master Suite on a specific device
+flutter test integration_test/master_suite_test.dart -d <DEVICE_ID> --flavor dev
+```
+
+### 🛠️ iOS Stability Fixes
+We've implemented several advanced configurations to ensure integration tests never hang on iOS:
+- **Native Pulse**: The suite manually "pumps" the engine frames immediately after launch to bridge the native/Flutter handshake gap.
+- **Benchmark Policy**: Tests use `LiveTestWidgetsFlutterBindingFramePolicy.benchmark` to prevent background timers (like the Dashboard's 1s live stream) from stalling the test.
+- **Clean Identifiers**: Hardcoded Bundle IDs in Xcode ensure the test runner can reliably identify and terminate the app process.
 
 ---
 

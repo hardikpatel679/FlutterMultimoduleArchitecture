@@ -1,7 +1,7 @@
 import 'package:core/config/flavor_config.dart';
 import 'main.dart' as app;
 
-void main() {
+Future<void> main() async {
   FlavorConfig.flavor = Flavor.mock;
-  app.main();
+  await app.main();
 }

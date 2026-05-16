@@ -53,6 +53,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get welcomeDashboard => 'مرحبا بكم في لوحة القيادة!';
 
   @override
+  String get dashboardInputLabel => 'إدخال لوحة القيادة';
+
+  @override
+  String get dashboardInputHint => 'أدخل شيئاً ما...';
+
+  @override
   String get loginSuccessSubtitle => 'لقد قمت بتسجيل الدخول بنجاح.';
 
   @override

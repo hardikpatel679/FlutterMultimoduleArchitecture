@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:core/widgets/custom_text_field.dart';
 import 'package:core/widgets/custom_text.dart';
 import 'package:core/generated/l10n/app_localizations.dart';
+import 'package:core/constants/app_constants.dart';
 import '../dashboard/dashboard_page.dart';
 import 'login_viewmodel.dart';
 
@@ -12,53 +13,51 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loginViewModel = context.watch<LoginViewModel>();
-    final localString = AppLocalizations.of(context)!;
+    
+    // Use a local helper to avoid null errors without blocking the test runner
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 60.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppConstants.spaceLarge,
+              vertical: AppConstants.spaceHuge,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Logo and Branding
-                const Icon(Icons.blur_on, size: 80, color: Colors.blueAccent),
-                CustomText(
-                  localString.appName,
-                  variant: TextVariant.h2,
-                  letterSpacing: 2,
-                ),
-                const SizedBox(height: 40),
+                const Icon(Icons.blur_on, size: AppConstants.iconSizeLarge, color: Colors.blueAccent),
+                
+                // appName
+                CustomText(l10n?.appName ?? 'CONNECT', variant: TextVariant.h2, letterSpacing: 2),
+                const SizedBox(height: AppConstants.spaceXXLarge),
 
-                // Header Text
-                CustomText(
-                  localString.welcomeBack,
-                  variant: TextVariant.h1,
-                ),
-                CustomText(
-                  localString.loginSubtitle,
-                  variant: TextVariant.subtitle,
-                ),
-                const SizedBox(height: 32),
+                // welcomeBack
+                CustomText(l10n?.welcomeBack ?? 'Welcome Back', variant: TextVariant.h1),
+                
+                // loginSubtitle
+                CustomText(l10n?.loginSubtitle ?? 'Log in to continue.', variant: TextVariant.subtitle),
+                const SizedBox(height: AppConstants.spaceExtraLarge),
 
                 // Username Input
                 CustomTextField(
-                  key: Key(localString.username),
+                  textFieldKey: const Key(AppConstants.keyUsernameField),
                   controller: loginViewModel.usernameController,
-                  labelText: localString.username,
-                  hintText: localString.usernameHint,
+                  labelText: l10n?.username ?? 'Username',
+                  hintText: l10n?.usernameHint ?? 'emilys',
                   prefixIcon: Icons.person_outline,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppConstants.spaceMedium),
 
                 // Password Input
                 CustomTextField(
-                  key: Key(localString.password),
+                  textFieldKey: const Key(AppConstants.keyPasswordField),
                   controller: loginViewModel.passwordController,
-                  labelText: localString.password,
+                  labelText: l10n?.password ?? 'Password',
                   prefixIcon: Icons.lock_outline,
                   obscureText: !loginViewModel.isPasswordVisible,
                   suffixIcon: IconButton(
@@ -70,101 +69,29 @@ class LoginPage extends StatelessWidget {
                     onPressed: loginViewModel.togglePasswordVisibility,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {},
-                    child: CustomText(
-                      localString.forgotPassword,
-                      color: Colors.blueAccent,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppConstants.spaceMedium),
 
                 // Log In Button
                 SizedBox(
                   width: double.infinity,
-                  height: 55,
+                  height: AppConstants.buttonHeight,
                   child: ElevatedButton(
+                    key: const Key(AppConstants.keyLoginButton),
                     onPressed: loginViewModel.isLoading ? null : () async {
                       await loginViewModel.login();
-                      
                       if (!context.mounted) return;
-
                       if (loginViewModel.user != null) {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const DashboardPage()),
-                        );
-                      } else if (loginViewModel.errorMessage != null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: CustomText(
-                                loginViewModel.errorMessage!,
-                                color: Colors.white,
-                            ),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardPage()));
                       }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium)),
                     ),
                     child: loginViewModel.isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : CustomText(
-                            localString.login,
-                            color: Colors.white,
-                            variant: TextVariant.button,
-                          ),
+                        : CustomText(l10n?.login ?? 'Log In', color: Colors.white, variant: TextVariant.button),
                   ),
-                ),
-                const SizedBox(height: 24),
-
-                // Social Login Section
-                Row(
-                  children: [
-                    const Expanded(child: Divider()),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: CustomText(
-                        localString.orContinueWith,
-                        variant: TextVariant.subtitle,
-                      ),
-                    ),
-                    const Expanded(child: Divider()),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.g_mobiledata, size: 40, color: Colors.red),
-                    const SizedBox(width: 24),
-                    const Icon(Icons.apple, size: 40, color: Colors.black),
-                  ],
-                ),
-                const SizedBox(height: 40),
-
-                // Sign Up Footer
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CustomText(localString.dontHaveAccount),
-                    GestureDetector(
-                      onTap: () {},
-                      child: CustomText(
-                        localString.signUp,
-                        color: Colors.blueAccent,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),

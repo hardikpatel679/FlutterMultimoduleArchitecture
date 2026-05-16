@@ -39,6 +39,7 @@ void main() {
     when(() => mockDashboardViewModel.disconnect()).thenReturn(null);
     when(() => mockDashboardViewModel.resetDashboard()).thenReturn(null);
     when(() => mockDashboardViewModel.fetchBatteryLevel()).thenAnswer((_) async {});
+    when(() => mockDashboardViewModel.inputController).thenReturn(TextEditingController());
     
     when(() => mockLoginViewModel.logout()).thenReturn(null);
     when(() => mockLoginViewModel.isPasswordVisible).thenReturn(false);

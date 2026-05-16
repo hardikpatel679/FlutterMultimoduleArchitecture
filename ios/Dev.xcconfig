@@ -1,4 +1,6 @@
-#include "Flutter/Generated.xcconfig"
-FLUTTER_TARGET=lib/main.dart
+#include? "Flutter/Generated.xcconfig"
+#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug-dev.xcconfig"
+#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release-dev.xcconfig"
+
+// FLUTTER_TARGET=lib/main.dart
 ASSET_PREFIX=dev
-BUNDLE_ID_SUFFIX=.dev

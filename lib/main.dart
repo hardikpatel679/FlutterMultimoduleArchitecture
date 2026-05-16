@@ -7,12 +7,9 @@ import 'package:core/viewmodels/locale_viewmodel.dart';
 import 'package:core/generated/l10n/app_localizations.dart';
 import 'package:login_module/login/login_page.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize Injection Container
   await di.init();
-  
   runApp(const MyApp());
 }
 
