@@ -1,42 +1,73 @@
-{\rtf1\ansi\ansicpg1252\cocoartf2869
-\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-{\*\expandedcolortbl;;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+pipeline {
+    agent any
 
-\f0\fs24 \cf0 pipeline \{\
-    agent any \
-\
-    stages \{\
-        stage('Checkout') \{\
-            steps \{\
-                echo 'Pulling the latest code from Git...'\
-                checkout scm\
-            \}\
-        \}\
-        stage('Build') \{\
-            steps \{\
-                echo 'Compiling project and creating build artifacts...'\
-                // Mac shell command example:\
-                // sh 'npm install' or sh './gradlew build'\
-            \}\
-        \}\
-        stage('Test') \{\
-            steps \{\
-                echo 'Running automated test suites...'\
-                // sh 'npm test' or sh './gradlew test'\
-            \}\
-        \}\
-    \}\
-    \
-    post \{\
-        success \{\
-            echo 'Pipeline execution passed successfully!'\
-        \}\
-        failure \{\
-            echo 'Pipeline failed. Check Jenkins console logs.'\
-        \}\
-    \}\
-\}\
+    environment {
+        // Defines path to Flutter SDK if not globally set in your Jenkins agent path
+        FLUTTER_HOME = "/opt/flutter" 
+        PATH         = "${env.FLUTTER_HOME}/bin:${env.PATH}"
+    }
+
+    stages {
+        stage('Environment Check') {
+            steps {
+                echo 'Checking Flutter and Dart installations...'
+                sh 'flutter --version'
+                sh 'dart --version'
+            }
+        }
+
+        stage('Install Melos') {
+            steps {
+                echo 'Activating Melos for multi-module dependency tracking...'
+                // Melos cleanly bootstraps and handles multiple local packages/modules
+                sh 'dart pub global activate melos'
+                // Ensure globally activated pub packages are in executable path
+                env.PATH = "${env.HOME}/.pub-cache/bin:${env.PATH}"
+            }
+        }
+
+        stage('Bootstrap Modules') {
+            steps {
+                echo 'Bootstrapping all Flutter sub-modules...'
+                // Automatically runs 'flutter pub get' across all internal architecture modules
+                sh 'melos bootstrap' 
+            }
+        }
+
+        stage('Code Analysis & Linting') {
+            steps {
+                echo 'Running code analysis across the workspace...'
+                sh 'melos run analyze'
+            }
+        }
+
+        stage('Unit Testing') {
+            steps {
+                echo 'Running unit tests for all internal packages...'
+                sh 'melos run test'
+            }
+        }
+
+        stage('Build APK') {
+            steps {
+                echo 'Building the main application Android APK...'
+                // Navigates to your primary runner module and executes production build
+                // Adjust path "apps/main_app" if your runner application lives in a different directory
+                dir('apps/main_app') {
+                    sh 'flutter build apk --release'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+            // Archives the compiled APK so you can download it directly from the Jenkins UI
+            archiveArtifacts artifacts: 'apps/main_app/build/app/outputs/flutter-apk/app-release.apk', allowEmptyArchive: true
+        }
+        failure {
+            echo 'Pipeline failed. Please review compilation logs.'
+        }
+    }
 }
