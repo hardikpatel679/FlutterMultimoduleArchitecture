@@ -1,42 +1,45 @@
-{\rtf1\ansi\ansicpg1252\cocoartf2869
-\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-{\*\expandedcolortbl;;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+pipeline {
+    agent any
 
-\f0\fs24 \cf0 pipeline \{\
-    agent any \
-\
-    stages \{\
-        stage('Checkout') \{\
-            steps \{\
-                echo 'Pulling the latest code from Git...'\
-                checkout scm\
-            \}\
-        \}\
-        stage('Build') \{\
-            steps \{\
-                echo 'Compiling project and creating build artifacts...'\
-                // Mac shell command example:\
-                // sh 'npm install' or sh './gradlew build'\
-            \}\
-        \}\
-        stage('Test') \{\
-            steps \{\
-                echo 'Running automated test suites...'\
-                // sh 'npm test' or sh './gradlew test'\
-            \}\
-        \}\
-    \}\
-    \
-    post \{\
-        success \{\
-            echo 'Pipeline execution passed successfully!'\
-        \}\
-        failure \{\
-            echo 'Pipeline failed. Check Jenkins console logs.'\
-        \}\
-    \}\
-\}\
+    stages {
+        stage('Environment Check') {
+            steps {
+                echo 'Checking Flutter and Dart installations...'
+                sh '#!/bin/bash -l\n flutter --version'
+                sh '#!/bin/bash -l\n dart --version'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                echo 'Fetching dependencies...'
+                sh '#!/bin/bash -l\n flutter pub get'
+            }
+        }
+
+        stage('Code Analysis') {
+            steps {
+                echo 'Running lint and analysis...'
+                // '|| true' ensures lint warnings don't crash your entire pipeline build
+                sh '#!/bin/bash -l\n flutter analyze || true'
+            }
+        }
+
+        stage('Build APK') {
+            steps {
+                echo 'Building production release APK...'
+                sh '#!/bin/bash -l\n flutter build apk --release'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+            archiveArtifacts artifacts: 'build/app/outputs/flutter-apk/app-release.apk', allowEmptyArchive: true
+        }
+        failure {
+            echo 'Pipeline failed. Check build logs for specific compilation errors.'
+        }
+    }
 }
