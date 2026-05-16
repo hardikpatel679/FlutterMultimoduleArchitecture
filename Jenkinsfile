@@ -27,10 +27,8 @@ pipeline {
         stage('Build APK') {
             steps {
                 echo 'Building production release APK...'
-                // Navigates to your target runnable application module
-                dir('example') {
-                    sh '#!/bin/bash -l\n flutter build apk --release'
-                }
+                // Running from the root directory fixes Flutter\'s pathing mechanism
+                sh '#!/bin/bash -l\n flutter build apk --release'
             }
         }
     }
@@ -38,8 +36,8 @@ pipeline {
     post {
         success {
             echo 'Pipeline completed successfully!'
-            // Updated archive path to target the 'example' build outputs folder
-            archiveArtifacts artifacts: '~/Documents/flutter-apk/app-release.apk', allowEmptyArchive: true
+            // Automatically searches the actual Jenkins workspace for the compiled package
+            archiveArtifacts artifacts: '**/build/app/outputs/flutter-apk/app-release.apk', allowEmptyArchive: true
         }
         failure {
             echo 'Pipeline failed. Check build logs for specific compilation errors.'
