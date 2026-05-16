@@ -1,0 +1,18 @@
+Analyzing flutter_basics...                                     
+
+   info • Don't invoke 'print' in production code • integration_test/login_flow_test.dart:10:3 • avoid_print
+  error • 1 positional argument expected by 'ensureInitialized', but 0 found • integration_test/login_flow_test.dart:13:51 • not_enough_positional_arguments
+   info • Don't invoke 'print' in production code • integration_test/login_flow_test.dart:17:5 • avoid_print
+   info • Don't invoke 'print' in production code • integration_test/login_flow_test.dart:20:5 • avoid_print
+   info • Don't invoke 'print' in production code • integration_test/login_flow_test.dart:24:5 • avoid_print
+   info • Don't invoke 'print' in production code • integration_test/login_flow_test.dart:30:5 • avoid_print
+   info • Don't invoke 'print' in production code • integration_test/login_flow_test.dart:37:5 • avoid_print
+   info • Don't invoke 'print' in production code • integration_test/login_flow_test.dart:41:5 • avoid_print
+   info • Don't invoke 'print' in production code • integration_test/login_flow_test.dart:49:5 • avoid_print
+   info • Don't invoke 'print' in production code • integration_test/login_flow_test.dart:53:5 • avoid_print
+   info • Don't invoke 'print' in production code • integration_test/login_flow_test.dart:56:5 • avoid_print
+   info • Don't invoke 'print' in production code • integration_test/login_flow_test.dart:66:5 • avoid_print
+   info • Don't invoke 'print' in production code • integration_test/login_flow_test.dart:70:5 • avoid_print
+   info • Don't invoke 'print' in production code • integration_test/login_flow_test.dart:74:5 • avoid_print
+
+14 issues found. (ran in 1.7s)

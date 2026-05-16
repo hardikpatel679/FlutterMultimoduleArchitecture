@@ -1,0 +1,42 @@
+PODS:
+  - battery_plus (0.0.1):
+    - FlutterMacOS
+  - CocoaAsyncSocket (7.6.5)
+  - connectivity_plus (0.0.1):
+    - FlutterMacOS
+  - FlutterMacOS (1.0.0)
+  - patrol (0.0.1):
+    - CocoaAsyncSocket (~> 7.6)
+    - Flutter
+    - FlutterMacOS
+
+DEPENDENCIES:
+  - battery_plus (from `Flutter/ephemeral/.symlinks/plugins/battery_plus/macos`)
+  - connectivity_plus (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos`)
+  - FlutterMacOS (from `Flutter/ephemeral`)
+  - patrol (from `Flutter/ephemeral/.symlinks/plugins/patrol/darwin`)
+
+SPEC REPOS:
+  trunk:
+    - CocoaAsyncSocket
+
+EXTERNAL SOURCES:
+  battery_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/battery_plus/macos
+  connectivity_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+  patrol:
+    :path: Flutter/ephemeral/.symlinks/plugins/patrol/darwin
+
+SPEC CHECKSUMS:
+  battery_plus: f51ad29136e025b714b96f7d096f44f604615da7
+  CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
+  connectivity_plus: 4adf20a405e25b42b9c9f87feff8f4b6fde18a4e
+  FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
+  patrol: cea8074f183a2a4232d0ebd10569ae05149ada42
+
+PODFILE CHECKSUM: 1a102c907d7f24ab627e1cbdab9563308b199023
+
+COCOAPODS: 1.16.2
