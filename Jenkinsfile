@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        // FIXME: Replace this path with your actual local Mac Flutter installation folder
-        FLUTTER_HOME = "/Users/hardikp/flutter" 
+        // Change this path to match the folder right before /bin/flutter from Step 1
+        FLUTTER_HOME = "/Users/hardikp/developer/flutter" 
         PATH         = "${env.FLUTTER_HOME}/bin:${env.PATH}"
     }
 
@@ -19,7 +19,6 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo 'Fetching dependencies...'
-                // Native fallback to manually pull packages in your multi-module setup
                 sh 'flutter pub get'
             }
         }
