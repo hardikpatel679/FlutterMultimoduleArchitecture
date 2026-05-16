@@ -1,10 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'login_flow_test.dart' as login;
 import 'dashboard_flow_test.dart' as dashboard;
 
 void main() {
-  print('TEST_LOG: [MASTER] Initializing Integration Binding');
+  debugPrint('TEST_LOG: [MASTER] Initializing Integration Binding');
   
   // Initialize the binding
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -13,7 +14,7 @@ void main() {
   binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
 
   testWidgets('Full App Journey: Login -> Dashboard -> Logout', (WidgetTester tester) async {
-    print('TEST_LOG: [MASTER] Full Journey Start');
+    debugPrint('TEST_LOG: [MASTER] Full Journey Start');
 
     // Part 1: Login
     await login.run(tester);
@@ -21,6 +22,6 @@ void main() {
     // Part 2: Dashboard Features
     await dashboard.run(tester);
 
-    print('TEST_LOG: [MASTER] Full Regression Suite completed successfully!');
+    debugPrint('TEST_LOG: [MASTER] Full Regression Suite completed successfully!');
   });
 }

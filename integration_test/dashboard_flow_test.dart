@@ -8,7 +8,7 @@ Future<void> run(WidgetTester tester) async {
   // ignore: non_constant_identifier_names
   final $ = PatrolTester(tester: tester, config: const PatrolTesterConfig());
 
-  print('TEST_LOG: [DASHBOARD] Starting Dashboard Feature Tests');
+  debugPrint('TEST_LOG: [DASHBOARD] Starting Dashboard Feature Tests');
 
   // 1. Verify we are on Dashboard
   expect($(Icons.dashboard), findsOneWidget);
@@ -29,7 +29,7 @@ Future<void> run(WidgetTester tester) async {
   // 4. Test "Toggle Language" Button (English -> Arabic -> English)
   final toggleButton = $('Toggle Language');
   await tester.ensureVisible(toggleButton);
-  print('TEST_LOG: [DASHBOARD] Tapping Toggle Language...');
+  debugPrint('TEST_LOG: [DASHBOARD] Tapping Toggle Language...');
   await toggleButton.tap();
   
   // Wait for the UI to update
@@ -40,7 +40,7 @@ Future<void> run(WidgetTester tester) async {
   await tester.ensureVisible(arabicToggle);
   expect(arabicToggle, findsOneWidget);
 
-  print('TEST_LOG: [DASHBOARD] Tapping Arabic Toggle...');
+  debugPrint('TEST_LOG: [DASHBOARD] Tapping Arabic Toggle...');
   await arabicToggle.tap();
   await tester.pump(const Duration(seconds: 1));
   
@@ -49,7 +49,7 @@ Future<void> run(WidgetTester tester) async {
   expect(toggleButton, findsOneWidget);
 
   // 5. Final Logout
-  print('TEST_LOG: [DASHBOARD] Performing Logout...');
+  debugPrint('TEST_LOG: [DASHBOARD] Performing Logout...');
   final logoutIcon = $(Icons.logout);
   await logoutIcon.tap();
   
@@ -64,12 +64,12 @@ Future<void> run(WidgetTester tester) async {
   }
   expect(loginReturned, isTrue);
 
-  print('TEST_LOG: [DASHBOARD] Dashboard tests completed, Logged out');
+  debugPrint('TEST_LOG: [DASHBOARD] Dashboard tests completed, Logged out');
 }
 
 // Keep main for independent execution if needed
 void main() {
   testWidgets('dashboard features only', (tester) async {
-    print('WARNING: This test depends on login_flow_test if run in a suite');
+    debugPrint('WARNING: This test depends on login_flow_test if run in a suite');
   });
 }
