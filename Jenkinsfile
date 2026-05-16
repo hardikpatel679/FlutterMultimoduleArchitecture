@@ -20,7 +20,6 @@ pipeline {
         stage('Code Analysis') {
             steps {
                 echo 'Running lint and analysis...'
-                // '|| true' ensures lint warnings don't crash your entire pipeline build
                 sh '#!/bin/bash -l\n flutter analyze || true'
             }
         }
@@ -28,7 +27,10 @@ pipeline {
         stage('Build APK') {
             steps {
                 echo 'Building production release APK...'
-                sh '#!/bin/bash -l\n flutter build apk --release'
+                // Navigates to your target runnable application module
+                dir('example') {
+                    sh '#!/bin/bash -l\n flutter build apk --release'
+                }
             }
         }
     }
@@ -36,7 +38,8 @@ pipeline {
     post {
         success {
             echo 'Pipeline completed successfully!'
-            archiveArtifacts artifacts: 'build/app/outputs/flutter-apk/app-release.apk', allowEmptyArchive: true
+            // Updated archive path to target the 'example' build outputs folder
+            archiveArtifacts artifacts: '~/Documents/flutter-apk/app-release.apk', allowEmptyArchive: true
         }
         failure {
             echo 'Pipeline failed. Check build logs for specific compilation errors.'
