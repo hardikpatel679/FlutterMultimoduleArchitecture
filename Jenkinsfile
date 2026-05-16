@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        // Points Jenkins to the local Flutter installation path on the server
-        FLUTTER_HOME = "/opt/flutter" 
+        // FIXME: Replace this path with your actual local Mac Flutter installation folder
+        FLUTTER_HOME = "/Users/hardikp/flutter" 
         PATH         = "${env.FLUTTER_HOME}/bin:${env.PATH}"
     }
 
@@ -18,17 +18,8 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                echo 'Fetching dependencies for all architecture modules...'
-                // Script block allows native Groovy commands to update environment variables
-                script {
-                    sh 'dart pub global activate melos'
-                    env.PATH = "${env.HOME}/.pub-cache/bin:${env.PATH}"
-                }
-                
-                // If using Melos, uncomment the line below:
-                // sh 'melos bootstrap'
-                
-                // Alternative: Native fallback to manually pull packages in your multi-module setup
+                echo 'Fetching dependencies...'
+                // Native fallback to manually pull packages in your multi-module setup
                 sh 'flutter pub get'
             }
         }
