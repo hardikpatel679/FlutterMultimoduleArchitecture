@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:core/widgets/custom_text.dart';
+import 'package:core/widgets/custom_text_field.dart';
 import 'package:core/viewmodels/locale_viewmodel.dart';
 import 'package:core/generated/l10n/app_localizations.dart';
-import '../login/login_page.dart';
-import '../login/login_viewmodel.dart';
-import 'dashboard_viewmodel.dart';
+import 'package:core/constants/app_constants.dart';
+import 'package:login_module/login/login_page.dart';
+import 'package:login_module/login/login_viewmodel.dart';
+import 'package:login_module/dashboard/dashboard_viewmodel.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -29,14 +31,22 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     final viewModel = context.watch<DashboardViewModel>();
     final loginViewModel = context.read<LoginViewModel>();
-    final localString = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+
+    if (l10n == null) {
+      return const Scaffold(
+        body: Center(child: Text('Loading...')),
+      );
+    }
+
+    final translations = l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: CustomText(localString.dashboardTitle),
+        title: CustomText(translations.dashboardTitle),
         actions: [
           IconButton(
-            tooltip: localString.logout,
+            tooltip: translations.logout,
             onPressed: () {
               viewModel.disconnect();
               loginViewModel.logout();
@@ -52,67 +62,77 @@ class _DashboardPageState extends State<DashboardPage> {
       body: SingleChildScrollView(
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(AppConstants.spaceLarge),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 40),
-                const Icon(Icons.dashboard, size: 100, color: Colors.blueAccent),
-                const SizedBox(height: 20),
+                const SizedBox(height: AppConstants.spaceXXLarge),
+                const Icon(Icons.dashboard, size: AppConstants.iconSizeHuge, color: Colors.blueAccent),
+                const SizedBox(height: AppConstants.spaceLarge),
                 CustomText(
-                  localString.welcomeDashboard,
+                  translations.welcomeDashboard,
                   variant: TextVariant.h2,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: AppConstants.spaceSmall),
                 
                 // Battery Level Display
                 if (viewModel.batteryLevel != null)
                   CustomText(
-                    localString.batteryLevel(viewModel.batteryLevel!),
+                    translations.batteryLevel(viewModel.batteryLevel!),
                     variant: TextVariant.h3,
                     color: Colors.blueGrey,
                   ),
-                const SizedBox(height: 20),
+                const SizedBox(height: AppConstants.spaceLarge),
+
+                // New Input Textbox
+                CustomTextField(
+                  textFieldKey: const Key(AppConstants.keyDashboardInputField),
+                  controller: viewModel.inputController,
+                  labelText: translations.dashboardInputLabel,
+                  hintText: translations.dashboardInputHint,
+                  prefixIcon: Icons.edit_note,
+                ),
+                const SizedBox(height: AppConstants.spaceLarge),
 
                 if (viewModel.isLoading)
                   const CircularProgressIndicator()
                 else if (viewModel.error != null)
                   CustomText(
-                    localString.errorMessage(viewModel.error!),
+                    translations.errorMessage(viewModel.error!),
                     color: Colors.red,
                   )
                 else
                   CustomText(
-                    localString.liveUpdates(viewModel.data ?? 0),
+                    translations.liveUpdates(viewModel.data ?? 0),
                     variant: TextVariant.h3,
                     color: Colors.green,
                   ),
-                const SizedBox(height: 32),
+                const SizedBox(height: AppConstants.spaceExtraLarge),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () => viewModel.resetDashboard(),
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: AppConstants.spaceMedium),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium)),
                     ),
                     child: CustomText(
-                      localString.resetStream,
+                      translations.resetStream,
                       variant: TextVariant.button,
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppConstants.spaceMedium),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () => context.read<LocaleViewModel>().toggleLocale(),
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: AppConstants.spaceMedium),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium)),
                     ),
                     child: CustomText(
-                      localString.toggleLanguage,
+                      translations.toggleLanguage,
                       variant: TextVariant.button,
                     ),
                   ),

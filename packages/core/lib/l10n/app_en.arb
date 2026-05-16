@@ -20,6 +20,8 @@
   },
   "dashboardTitle": "Dashboard",
   "welcomeDashboard": "Welcome to the Dashboard!",
+  "dashboardInputLabel": "Dashboard Input",
+  "dashboardInputHint": "Enter something...",
   "loginSuccessSubtitle": "You have successfully logged in.",
   "logout": "Logout",
   "errorMessage": "Error: {message}",

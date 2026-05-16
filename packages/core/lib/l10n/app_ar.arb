@@ -20,6 +20,8 @@
   },
   "dashboardTitle": "لوحة القيادة",
   "welcomeDashboard": "مرحبا بكم في لوحة القيادة!",
+  "dashboardInputLabel": "إدخال لوحة القيادة",
+  "dashboardInputHint": "أدخل شيئاً ما...",
   "loginSuccessSubtitle": "لقد قمت بتسجيل الدخول بنجاح.",
   "logout": "تسجيل الخروج",
   "errorMessage": "خطأ: {message}",

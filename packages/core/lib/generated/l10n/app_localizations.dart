@@ -182,6 +182,18 @@ abstract class AppLocalizations {
   /// **'Welcome to the Dashboard!'**
   String get welcomeDashboard;
 
+  /// No description provided for @dashboardInputLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard Input'**
+  String get dashboardInputLabel;
+
+  /// No description provided for @dashboardInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter something...'**
+  String get dashboardInputHint;
+
   /// No description provided for @loginSuccessSubtitle.
   ///
   /// In en, this message translates to:

@@ -53,6 +53,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeDashboard => 'Welcome to the Dashboard!';
 
   @override
+  String get dashboardInputLabel => 'Dashboard Input';
+
+  @override
+  String get dashboardInputHint => 'Enter something...';
+
+  @override
   String get loginSuccessSubtitle => 'You have successfully logged in.';
 
   @override
