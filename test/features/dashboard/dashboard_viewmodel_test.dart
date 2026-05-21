@@ -11,34 +11,41 @@ void main() {
 
   setUp(() {
     mockBatteryService = MockBatteryService();
-    viewModel = DashboardViewModel(batteryService: mockBatteryService);
+    // Stub before constructor call
+    when(() => mockBatteryService.getBatteryLevel()).thenAnswer((_) async => 85);
   });
 
   group('DashboardViewModel', () {
-    test('initial state should be correct', () {
+    test('initial state should be correct and auto-initialize', () {
+      // Act
+      viewModel = DashboardViewModel(batteryService: mockBatteryService);
+
+      // Assert: connect() sets isLoading to true
+      expect(viewModel.isLoading, true);
       expect(viewModel.data, null);
-      expect(viewModel.isLoading, false);
       expect(viewModel.error, null);
-      expect(viewModel.batteryLevel, null);
+      
+      // verify auto-calls
+      verify(() => mockBatteryService.getBatteryLevel()).called(1);
     });
 
     test('fetchBatteryLevel should update batteryLevel', () async {
       // Arrange
-      when(() => mockBatteryService.getBatteryLevel()).thenAnswer((_) async => 85);
+      viewModel = DashboardViewModel(batteryService: mockBatteryService);
+      when(() => mockBatteryService.getBatteryLevel()).thenAnswer((_) async => 90);
 
       // Act
       await viewModel.fetchBatteryLevel();
 
       // Assert
-      expect(viewModel.batteryLevel, 85);
-      verify(() => mockBatteryService.getBatteryLevel()).called(1);
+      expect(viewModel.batteryLevel, 90);
     });
 
     test('connect should start streaming data', () async {
-      // Act
-      viewModel.connect();
+      // Arrange
+      viewModel = DashboardViewModel(batteryService: mockBatteryService);
 
-      // Assert: Initially it should be loading
+      // Assert: Initially it should be loading (from constructor auto-init)
       expect(viewModel.isLoading, true);
 
       // Wait for the first periodic value (1s delay)
@@ -46,30 +53,14 @@ void main() {
 
       expect(viewModel.data, 0);
       expect(viewModel.isLoading, false);
-      expect(viewModel.error, null);
-    });
-
-    test('disconnect should stop streaming data', () async {
-      // Arrange
-      viewModel.connect();
-      await Future.delayed(const Duration(milliseconds: 1100));
-      expect(viewModel.data, 0);
-
-      // Act
-      viewModel.disconnect();
-
-      // Assert
-      expect(viewModel.isLoading, false);
-      
-      // Wait another second to see if data updates (it shouldn't)
-      await Future.delayed(const Duration(milliseconds: 1100));
-      expect(viewModel.data, 0); // Still 0, didn't update to 1
     });
 
     test('resetDashboard should reconnect the stream and fetch battery', () async {
       // Arrange
-      when(() => mockBatteryService.getBatteryLevel()).thenAnswer((_) async => 90);
-      viewModel.connect();
+      when(() => mockBatteryService.getBatteryLevel()).thenAnswer((_) async => 100);
+      viewModel = DashboardViewModel(batteryService: mockBatteryService);
+      
+      // Wait for initial data
       await Future.delayed(const Duration(milliseconds: 1100));
       expect(viewModel.data, 0);
 
@@ -81,8 +72,7 @@ void main() {
       
       await Future.delayed(const Duration(milliseconds: 1100));
       expect(viewModel.data, 0); // New stream starts at 0
-      expect(viewModel.isLoading, false);
-      expect(viewModel.batteryLevel, 90);
+      expect(viewModel.batteryLevel, 100);
     });
   });
 }

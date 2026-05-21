@@ -9,37 +9,21 @@ import 'package:login_module/login/login_page.dart';
 import 'package:login_module/login/login_viewmodel.dart';
 import 'package:login_module/dashboard/dashboard_viewmodel.dart';
 
-class DashboardPage extends StatefulWidget {
+class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
-  State<DashboardPage> createState() => _DashboardPageState();
-}
-
-class _DashboardPageState extends State<DashboardPage> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final viewModel = context.read<DashboardViewModel>();
-      viewModel.connect();
-      viewModel.fetchBatteryLevel();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // We watch the ViewModel to rebuild on data/battery/loading changes
     final viewModel = context.watch<DashboardViewModel>();
     final loginViewModel = context.read<LoginViewModel>();
-    final l10n = AppLocalizations.of(context);
+    final translations = AppLocalizations.of(context);
 
-    if (l10n == null) {
+    if (translations == null) {
       return const Scaffold(
         body: Center(child: Text('Loading...')),
       );
     }
-
-    final translations = l10n;
 
     return Scaffold(
       appBar: AppBar(
@@ -67,7 +51,11 @@ class _DashboardPageState extends State<DashboardPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: AppConstants.spaceXXLarge),
-                const Icon(Icons.dashboard, size: AppConstants.iconSizeHuge, color: Colors.blueAccent),
+                const Icon(
+                  Icons.dashboard,
+                  size: AppConstants.iconSizeHuge,
+                  color: Colors.blueAccent,
+                ),
                 const SizedBox(height: AppConstants.spaceLarge),
                 CustomText(
                   translations.welcomeDashboard,
@@ -114,7 +102,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     onPressed: () => viewModel.resetDashboard(),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: AppConstants.spaceMedium),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
+                      ),
                     ),
                     child: CustomText(
                       translations.resetStream,
@@ -129,7 +119,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     onPressed: () => context.read<LocaleViewModel>().toggleLocale(),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: AppConstants.spaceMedium),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
+                      ),
                     ),
                     child: CustomText(
                       translations.toggleLanguage,

@@ -8,7 +8,11 @@ class DashboardViewModel extends BaseStreamViewModel<int> {
   final BatteryService _batteryService;
 
   DashboardViewModel({required BatteryService batteryService}) 
-      : _batteryService = batteryService;
+      : _batteryService = batteryService {
+    // Auto-initialize when the ViewModel is created
+    connect();
+    fetchBatteryLevel();
+  }
 
   final TextEditingController inputController = TextEditingController();
 
@@ -20,17 +24,16 @@ class DashboardViewModel extends BaseStreamViewModel<int> {
       _batteryLevel = await _batteryService.getBatteryLevel();
       notifyListeners();
     } catch (e) {
-      // Handle error if needed
+      // Error handling is managed by the service
     }
   }
 
-  /// In a real app, this would come from a Repository via a GraphQL Subscription or WebSocket.
   @override
   Stream<int> getStream() {
-    return Stream.periodic(const Duration(seconds: 1), (count) => count).take(AppConstants.maxLiveUpdates);
+    return Stream.periodic(const Duration(seconds: 1), (count) => count)
+        .take(AppConstants.maxLiveUpdates);
   }
 
-  /// Optional: You can add specific business logic here
   void resetDashboard() {
     disconnect();
     connect();

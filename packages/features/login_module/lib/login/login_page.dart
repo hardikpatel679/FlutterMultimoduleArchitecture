@@ -17,6 +17,14 @@ class LoginPage extends StatelessWidget {
     // Use a local helper to avoid null errors without blocking the test runner
     final l10n = AppLocalizations.of(context);
 
+    if (l10n == null) {
+      return const Scaffold(
+        body: Center(child: Text('Loading...')),
+      );
+    }
+
+    final translations = l10n;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
@@ -33,22 +41,22 @@ class LoginPage extends StatelessWidget {
                 const Icon(Icons.blur_on, size: AppConstants.iconSizeLarge, color: Colors.blueAccent),
                 
                 // appName
-                CustomText(l10n?.appName ?? 'CONNECT', variant: TextVariant.h2, letterSpacing: 2),
+                CustomText(translations.appName, variant: TextVariant.h2, letterSpacing: 2),
                 const SizedBox(height: AppConstants.spaceXXLarge),
 
                 // welcomeBack
-                CustomText(l10n?.welcomeBack ?? 'Welcome Back', variant: TextVariant.h1),
+                CustomText(translations.welcomeBack, variant: TextVariant.h1),
                 
                 // loginSubtitle
-                CustomText(l10n?.loginSubtitle ?? 'Log in to continue.', variant: TextVariant.subtitle),
+                CustomText(translations.loginSubtitle, variant: TextVariant.subtitle),
                 const SizedBox(height: AppConstants.spaceExtraLarge),
 
                 // Username Input
                 CustomTextField(
                   textFieldKey: const Key(AppConstants.keyUsernameField),
                   controller: loginViewModel.usernameController,
-                  labelText: l10n?.username ?? 'Username',
-                  hintText: l10n?.usernameHint ?? 'emilys',
+                  labelText: translations.username,
+                  hintText: translations.usernameHint,
                   prefixIcon: Icons.person_outline,
                 ),
                 const SizedBox(height: AppConstants.spaceMedium),
@@ -57,7 +65,7 @@ class LoginPage extends StatelessWidget {
                 CustomTextField(
                   textFieldKey: const Key(AppConstants.keyPasswordField),
                   controller: loginViewModel.passwordController,
-                  labelText: l10n?.password ?? 'Password',
+                  labelText: translations.password,
                   prefixIcon: Icons.lock_outline,
                   obscureText: !loginViewModel.isPasswordVisible,
                   suffixIcon: IconButton(
@@ -79,18 +87,38 @@ class LoginPage extends StatelessWidget {
                     key: const Key(AppConstants.keyLoginButton),
                     onPressed: loginViewModel.isLoading ? null : () async {
                       await loginViewModel.login();
+                      
                       if (!context.mounted) return;
+
                       if (loginViewModel.user != null) {
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardPage()));
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => const DashboardPage()),
+                        );
+                      } else if (loginViewModel.errorMessage != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: CustomText(
+                                loginViewModel.errorMessage!,
+                                color: Colors.white,
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
                       }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium)),
                     ),
                     child: loginViewModel.isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : CustomText(l10n?.login ?? 'Log In', color: Colors.white, variant: TextVariant.button),
+                        : CustomText(
+                            translations.login,
+                            color: Colors.white,
+                            variant: TextVariant.button,
+                          ),
                   ),
                 ),
               ],
