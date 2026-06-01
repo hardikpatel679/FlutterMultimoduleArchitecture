@@ -11,8 +11,41 @@ pipeline {
             description: 'Select the platform(s) to build.'
         )
         
-        // FLAVOR selection is now dynamic and occurs in the 'Initialize' stage 
-        // after the code is checked out, ensuring it matches your project's flavors.
+        // Requires "Active Choices Plugin"
+        // This script runs on the Jenkins controller to find flavors in the workspace
+        // NOTE: On the first run, this might be empty until code is checked out.
+        // You may need to approve this script in Manage Jenkins > In-process Script Approval.
+        // @NonCPS is required for some Jenkins versions.
+        activeChoice(
+            name: 'FLAVOR',
+            choiceType: 'PT_SINGLE_SELECT',
+            description: 'Select the flavor to build (dynamically fetched from code).',
+            script: groovyScript(
+                script: '''
+                    def flavors = []
+                    try {
+                        // Dynamically locate the workspace directory for this job
+                        // This path assumes a standard Jenkins installation. Adjust if necessary.
+                        def workspacePath = System.getenv("WORKSPACE") ?: "/var/jenkins_home/workspace/${JOB_NAME}"
+                        def gradleFile = new File(workspacePath, "android/app/build.gradle.kts")
+                        
+                        if (gradleFile.exists()) {
+                            def text = gradleFile.text
+                            def matcher = text =~ /create\\("([^"]+)"\\)/
+                            while (matcher.find()) {
+                                def f = matcher.group(1)
+                                if (!["release", "debug", "config"].contains(f)) {
+                                    flavors << f
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        // Fallback/Log error
+                    }
+                    return flavors.unique().sort() ?: ["dev", "prod", "mock"]
+                '''
+            )
+        )
         
         choice(
             name: 'VARIANT', 
@@ -52,7 +85,7 @@ pipeline {
                 script {
                     try {
                         // Resolve branch info
-                        def rawBranch = params.BRANCH_TO_BUILD ?: env.BRANCH_NAME ?: "master"
+                        def rawBranch = params.BRANCH_TO_BUILD ?: env.BRANCH_NAME ?: "main"
                         env.CURRENT_BRANCH = rawBranch
                         
                         echo "Building Branch: ${env.CURRENT_BRANCH}"
@@ -63,27 +96,10 @@ pipeline {
                             userRemoteConfigs: [[url: "${env.REPO_URL}"]]
                         ])
 
-                        // Extract flavors dynamically from android/app/build.gradle.kts
-                        if (fileExists('android/app/build.gradle.kts')) {
-                            env.PROJECT_FLAVORS = sh(script: "grep -o 'create(\"[^\"]*\")' android/app/build.gradle.kts | cut -d'\"' -f2 | grep -vE 'release|debug|config' | sort -u | tr '\\n' ',' | sed 's/,\$//'", returnStdout: true).trim()
-                            echo "Detected Project Flavors: ${env.PROJECT_FLAVORS}"
-                        }
-                        
-                        // Dynamically populate flavor selection from detected flavors
-                        if (env.PROJECT_FLAVORS) {
-                            def flavorList = env.PROJECT_FLAVORS.split(',')
-                            env.SELECTED_FLAVOR = input(
-                                message: 'Select flavor to build',
-                                parameters: [
-                                    choice(name: 'FLAVOR', choices: flavorList, description: 'Choose a flavor from the project code')
-                                ]
-                            )
-                        } else {
-                            env.SELECTED_FLAVOR = 'dev'
-                        }
-
+                        env.SELECTED_FLAVOR = params.FLAVOR ?: 'dev'
                         env.SELECTED_VARIANT = params.VARIANT?.toLowerCase() ?: 'release'
-                        env.BUILD_ALL = 'false'
+                        
+                        echo "Build Configuration: Flavor=${env.SELECTED_FLAVOR}, Variant=${env.SELECTED_VARIANT}"
                     } catch (Exception e) {
                         currentBuild.description = "Failed at Initialize: ${e.message}"
                         error("Initialization failed: ${e.message}")
@@ -96,9 +112,6 @@ pipeline {
             steps {
                 sh 'flutter doctor'
                 sh 'flutter pub get'
-                // If using Melos for multi-module:
-                // sh 'dart pub global activate melos'
-                // sh 'melos bootstrap'
             }
         }
 
@@ -107,11 +120,9 @@ pipeline {
                 script {
                     try {
                         echo "--- Running Unit Tests and Checking Coverage ---"
-                        // Run tests with coverage
                         sh 'flutter test --coverage'
                         
-                        // Check coverage threshold (requires lcov/genhtml on the agent)
-                        // This script extracts the total line coverage percentage
+                        // Check coverage threshold (requires lcov on the agent)
                         def coverageOutput = sh(script: "lcov --summary coverage/lcov.info | grep lines | cut -d ' ' -f 4 | cut -d '%' -f 1", returnStdout: true).trim()
                         float coverage = coverageOutput.toFloat()
                         
@@ -133,8 +144,6 @@ pipeline {
                 script {
                     try {
                         echo "--- Running Functional Verification Tests ---"
-                        // For Flutter, this usually means Integration Tests
-                        // You need a running emulator/device or a service like Firebase Test Lab
                         sh 'flutter test integration_test'
                     } catch (Exception _) {
                         currentBuild.description = "Failed at FVT: UI/Integration Tests failed."
@@ -148,8 +157,6 @@ pipeline {
             steps {
                 script {
                     echo "--- Quality Gate Passed ---"
-                    // You can add manual approval here if needed
-                    // input message: 'Approve build for deployment?', ok: 'Deploy'
                 }
             }
         }
@@ -183,7 +190,6 @@ pipeline {
             steps {
                 script {
                     try {
-                        // Note: iOS builds require a Mac agent with proper certs
                         echo "Building iOS IPA for flavor: ${env.SELECTED_FLAVOR}"
                         sh "flutter build ipa --flavor ${env.SELECTED_FLAVOR} --${env.SELECTED_VARIANT} --no-codesign"
                     } catch (Exception e) {
