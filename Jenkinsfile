@@ -106,8 +106,9 @@ pipeline {
 
         stage('Prepare') {
             steps {
+                sh 'flutter clean' // Clean old build artifacts to ensure fresh archives
                 sh 'flutter doctor'
-                sh 'pod --version' // Verify CocoaPods is accessible
+                sh 'pod --version'
                 sh 'flutter pub get'
             }
         }
