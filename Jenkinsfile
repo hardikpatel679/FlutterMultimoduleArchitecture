@@ -128,17 +128,32 @@ pipeline {
                         echo "--- Running Unit Tests and Checking Coverage ---"
                         sh 'flutter test --coverage'
                         
-                        def coverageOutput = sh(script: "lcov --summary coverage/lcov.info | grep lines | cut -d ' ' -f 4 | cut -d '%' -f 1", returnStdout: true).trim()
-                        float coverage = coverageOutput.toFloat()
+                        // Robust Groovy-based LCOV parser (does not require 'lcov' tool installed)
+                        def lcovFile = readFile('coverage/lcov.info')
+                        def linesFound = 0
+                        def linesHit = 0
                         
-                        echo "Current Coverage: ${coverage}%"
+                        lcovFile.eachLine { line ->
+                            if (line.startsWith('LF:')) {
+                                linesFound += (line.split(':')[1] as Integer)
+                            } else if (line.startsWith('LH:')) {
+                                linesHit += (line.split(':')[1] as Integer)
+                            }
+                        }
+                        
+                        if (linesFound == 0) {
+                            error("No coverage data found in coverage/lcov.info")
+                        }
+                        
+                        float coverage = (linesHit / linesFound) * 100
+                        echo "Current Coverage: ${String.format('%.2f', coverage)}% (${linesHit}/${linesFound} lines)"
                         
                         if (coverage < 90.0) {
-                            error("Code coverage ${coverage}% is below the required 90% threshold.")
+                            error("Code coverage ${String.format('%.2f', coverage)}% is below the required 90% threshold.")
                         }
                     } catch (Exception e) {
                         currentBuild.description = "Failed at Unit Tests/Coverage: ${e.message}"
-                        error("Unit Test or Coverage verification failed.")
+                        error("Unit Test or Coverage verification failed: ${e.message}")
                     }
                 }
             }
