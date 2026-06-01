@@ -22,28 +22,32 @@ pipeline {
             description: 'Select the flavor to build (dynamically fetched from code).',
             script: groovyScript(
                 script: '''
-                    def flavors = []
+                    def flavors = ["dev", "prod", "mock"]
                     try {
-                        // Dynamically locate the workspace directory for this job
-                        // This path assumes a standard Jenkins installation. Adjust if necessary.
-                        def workspacePath = System.getenv("WORKSPACE") ?: "/var/jenkins_home/workspace/${JOB_NAME}"
+                        // JOB_NAME is available in Active Choices script context
+                        def workspacePath = "/var/jenkins_home/workspace/${JOB_NAME}"
                         def gradleFile = new File(workspacePath, "android/app/build.gradle.kts")
                         
                         if (gradleFile.exists()) {
                             def text = gradleFile.text
                             def matcher = text =~ /create\\("([^"]+)"\\)/
+                            def foundFlavors = []
                             while (matcher.find()) {
                                 def f = matcher.group(1)
                                 if (!["release", "debug", "config"].contains(f)) {
-                                    flavors << f
+                                    foundFlavors << f
                                 }
+                            }
+                            if (foundFlavors) {
+                                flavors = foundFlavors
                             }
                         }
                     } catch (e) {
-                        // Fallback/Log error
+                        // Fallback
                     }
-                    return flavors.unique().sort() ?: ["dev", "prod", "mock"]
-                '''
+                    return flavors.unique().sort()
+                ''',
+                fallbackScript: 'return ["dev", "prod", "mock"]'
             )
         )
         
