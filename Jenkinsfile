@@ -34,7 +34,7 @@ pipeline {
                                 if (gradleFile.exists()) {
                                     def text = gradleFile.readToString()
                                     // Use character classes [ ( ] and [ ) ] to avoid escaping issues in Jenkins
-                                    def matcher = text =~ /create[\\\\s]*[(][\\\\s]*["']([^"']+)["'][\\\\s]*[)]/
+                                    def matcher = text =~ /create[ \t]*[(][ \t]*["']([^"']+)["'][ \t]*[)]/
                                     while (matcher.find()) {
                                         def f = matcher.group(1)
                                         // Ignore standard Gradle configurations
@@ -84,7 +84,7 @@ pipeline {
     environment {
         FLUTTER_HOME = "${HOME}/flutter"
         PATH = "${env.FLUTTER_HOME}/bin:${env.PATH}"
-        REPO_URL = 'https://github.com/hardikpatel679/AndroidMultimoduleDemo.git'
+        REPO_URL = 'https://github.com/hardikpatel679/FlutterMultimoduleArchitecture.git'
     }
 
     stages {
