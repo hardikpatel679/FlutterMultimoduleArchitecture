@@ -64,7 +64,7 @@ void main() {
         ),
       ));
 
-      final textField = tester.widget<TextFormField>(find.byType(TextFormField));
+      final textField = tester.widget<TextField>(find.byType(TextField));
       expect(textField.obscureText, true);
     });
   });
