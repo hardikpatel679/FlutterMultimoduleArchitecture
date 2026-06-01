@@ -57,7 +57,7 @@ pipeline {
                 script {
                     try {
                         // Resolve branch info
-                        def rawBranch = params.BRANCH_TO_BUILD ?: env.BRANCH_NAME ?: "main"
+                        def rawBranch = params.BRANCH_TO_BUILD ?: env.BRANCH_NAME ?: "master"
                         env.CURRENT_BRANCH = rawBranch
                         
                         echo "Building Branch: ${env.CURRENT_BRANCH}"
