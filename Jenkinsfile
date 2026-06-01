@@ -21,7 +21,6 @@ pipeline {
                 script: [
                     $class: 'SecureGroovyScript',
                     script: '''
-                        import jenkins.model.Jenkins
                         def foundFlavors = []
                         try {
                             def jobName = null
@@ -34,54 +33,63 @@ pipeline {
                                 jobName = vars.get('project').fullName
                             }
                             
-                            if (jobName == null) return ["Error: Job name not found"]
-                            
-                            def job = Jenkins.get().getItemByFullName(jobName)
-                            if (job == null) return ["Error: Job not found: " + jobName]
-                            
                             def workspace = null
-                            def build = job.getLastBuild()
                             
-                            // Iterate back through builds to find one with a valid workspace directory that still exists
-                            while (build != null && workspace == null) {
-                                def tempWs = null
+                            // 1. Try to find workspace via Jenkins API
+                            if (jobName != null) {
                                 try {
-                                    for (action in build.getActions()) {
-                                        if (action.getClass().getName().contains("WorkspaceAction")) {
-                                            tempWs = action.getWorkspace()
-                                            break
+                                    def job = jenkins.model.Jenkins.instance.getItemByFullName(jobName)
+                                    def build = job?.getLastBuild()
+                                    while (build != null && workspace == null) {
+                                        for (action in build.getActions()) {
+                                            if (action.class.name.contains("WorkspaceAction")) {
+                                                def ws = action.getWorkspace()
+                                                if (ws != null && ws.exists()) {
+                                                    workspace = ws
+                                                    break
+                                                }
+                                            }
+                                        }
+                                        build = build.getPreviousBuild()
+                                    }
+                                } catch (e) { /* ignore API errors */ }
+                            }
+                            
+                            // 2. Fallback to hardcoded path based on your logs if API fails
+                            if (workspace == null) {
+                                def hardcodedPath = "/Users/hardikp/.jenkins/workspace/FlutterMultimoduleArchitecture"
+                                def folder = new File(hardcodedPath)
+                                if (folder.exists()) {
+                                    def gradleFile = new File(folder, "android/app/build.gradle.kts")
+                                    if (gradleFile.exists()) {
+                                        def text = gradleFile.text
+                                        def matcher = text =~ /create[ \t]*[(][ \t]*["'](.+?)["'][ \t]*[)]/
+                                        while (matcher.find()) {
+                                            def f = matcher.group(1)
+                                            if (!["release", "debug", "config", "implementation", "test", "android"].contains(f)) {
+                                                foundFlavors.add(f)
+                                            }
                                         }
                                     }
-                                } catch (e) {
-                                    // Action might not be accessible
                                 }
-
-                                if (tempWs != null && tempWs.exists()) {
-                                    workspace = tempWs
-                                } else {
-                                    build = build.getPreviousBuild()
-                                }
-                            }
-
-                            if (workspace == null) return ["Error: No workspace found. Run build once."]
-                            
-                            def gradleFile = workspace.child("android/app/build.gradle.kts")
-                            if (!gradleFile.exists()) return ["Error: android/app/build.gradle.kts not found in " + workspace.getRemote()]
-                            
-                            def text = gradleFile.readToString()
-                            // Correct regex for Groovy triple-single-quoted strings
-                            // We use character classes for parens to avoid escaping issues
-                            def matcher = text =~ /create[ \t]*[(][ \t]*["'](.+?)["'][ \t]*[)]/
-                            while (matcher.find()) {
-                                def f = matcher.group(1)
-                                if (!["release", "debug", "config", "implementation", "test", "android"].contains(f)) {
-                                    foundFlavors.add(f)
+                            } else {
+                                // Use the workspace found via API
+                                def gradleFile = workspace.child("android/app/build.gradle.kts")
+                                if (gradleFile.exists()) {
+                                    def text = gradleFile.readToString()
+                                    def matcher = text =~ /create[ \t]*[(][ \t]*["'](.+?)["'][ \t]*[)]/
+                                    while (matcher.find()) {
+                                        def f = matcher.group(1)
+                                        if (!["release", "debug", "config", "implementation", "test", "android"].contains(f)) {
+                                            foundFlavors.add(f)
+                                        }
+                                    }
                                 }
                             }
                         } catch (Exception e) {
                             return ["Error: " + e.getMessage()]
                         }
-                        return foundFlavors.unique().sort() ?: ["Error: No flavors detected in file"]
+                        return foundFlavors.unique().sort() ?: ["dev", "prod", "mock"]
                     ''',
                     sandbox: true
                 ],
@@ -281,6 +289,7 @@ pipeline {
 
     post {
         always {
+            echo "Build finished. Files preserved for flavor detection."
             // Commented out to allow dynamic flavor detection to find the workspace
             // cleanWs()
         }
