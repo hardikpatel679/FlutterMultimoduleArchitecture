@@ -8,6 +8,7 @@ void main() {
       expect(FlavorConfig.isDev, true);
       expect(FlavorConfig.isProd, false);
       expect(FlavorConfig.isMock, false);
+      expect(FlavorConfig.isUst, false);
     });
 
     test('should correctly identify prod flavor', () {
@@ -15,6 +16,7 @@ void main() {
       expect(FlavorConfig.isDev, false);
       expect(FlavorConfig.isProd, true);
       expect(FlavorConfig.isMock, false);
+      expect(FlavorConfig.isUst, false);
     });
 
     test('should correctly identify mock flavor', () {
@@ -22,6 +24,15 @@ void main() {
       expect(FlavorConfig.isDev, false);
       expect(FlavorConfig.isProd, false);
       expect(FlavorConfig.isMock, true);
+      expect(FlavorConfig.isUst, false);
+    });
+
+    test('should correctly identify ust flavor', () {
+      FlavorConfig.flavor = Flavor.ust;
+      expect(FlavorConfig.isDev, false);
+      expect(FlavorConfig.isProd, false);
+      expect(FlavorConfig.isMock, false);
+      expect(FlavorConfig.isUst, true);
     });
   });
 }

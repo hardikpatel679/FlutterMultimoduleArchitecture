@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:login_module/login/login_viewmodel.dart';
 import 'package:domain/usecases/login_usecase.dart';
-import '../../helpers/test_helper.dart';
+import '../helpers/test_helper.dart';
 
 class MockLoginUseCase extends Mock implements LoginUseCase {}
 
