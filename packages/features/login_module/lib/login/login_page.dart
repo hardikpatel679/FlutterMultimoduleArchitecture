@@ -80,7 +80,12 @@ class LoginPage extends StatelessWidget {
                     onPressed: loginViewModel.isLoading ? null : () async {
                       await loginViewModel.login();
                       if (!context.mounted) return;
-                      if (loginViewModel.user != null) {
+                      
+                      if (loginViewModel.errorMessage != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(loginViewModel.errorMessage!)),
+                        );
+                      } else if (loginViewModel.user != null) {
                         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardPage()));
                       }
                     },

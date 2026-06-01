@@ -24,8 +24,11 @@ pipeline {
                         import jenkins.model.Jenkins
                         def foundFlavors = []
                         try {
-                            def job = Jenkins.get().getItemByFullName(JOB_NAME)
-                            if (job == null) return ["Error: Job not found"]
+                            def jobName = binding.variables.get('JOB_NAME')
+                            if (jobName == null) return ["Error: JOB_NAME not found in binding"]
+                            
+                            def job = Jenkins.get().getItemByFullName(jobName)
+                            if (job == null) return ["Error: Job not found: " + jobName]
                             
                             def lastBuild = job.getLastBuild()
                             if (lastBuild == null) return ["Error: No previous build found"]
