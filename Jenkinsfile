@@ -114,36 +114,47 @@ pipeline {
             steps {
                 script {
                     try {
-                        echo "--- Running Unit Tests and Checking Coverage ---"
-                        sh 'flutter test --coverage'
+                        echo "--- Running Multi-Module Unit Tests and Checking Coverage ---"
                         
-                        def lcovContent = readFile('coverage/lcov.info')
-                        if (!lcovContent) {
-                            error("coverage/lcov.info is empty or not found")
-                        }
+                        def modules = ['.', 'packages/core', 'packages/domain', 'packages/network', 'packages/features/login_module']
+                        def totalLinesFound = 0
+                        def totalLinesHit = 0
 
-                        def linesFound = 0
-                        def linesHit = 0
-                        
-                        def lines = lcovContent.split('\n')
-                        for (int i = 0; i < lines.length; i++) {
-                            def line = lines[i].trim()
-                            if (line.startsWith('LF:')) {
-                                linesFound += (line.split(':')[1] as Integer)
-                            } else if (line.startsWith('LH:')) {
-                                linesHit += (line.split(':')[1] as Integer)
+                        for (module in modules) {
+                            if (fileExists("${module}/pubspec.yaml")) {
+                                echo "Testing module: ${module}"
+                                dir(module) {
+                                    sh 'flutter pub get'
+                                    // Only run coverage if there is a test directory
+                                    if (fileExists('test')) {
+                                        sh 'flutter test --coverage'
+                                        
+                                        if (fileExists('coverage/lcov.info')) {
+                                            def lcovContent = readFile('coverage/lcov.info')
+                                            def lines = lcovContent.split('\n')
+                                            for (int i = 0; i < lines.length; i++) {
+                                                def line = lines[i].trim()
+                                                if (line.startsWith('LF:')) {
+                                                    totalLinesFound += (line.split(':')[1] as Integer)
+                                                } else if (line.startsWith('LH:')) {
+                                                    totalLinesHit += (line.split(':')[1] as Integer)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                         
-                        if (linesFound == 0) {
-                            error("No coverage data found in coverage/lcov.info (LF count is 0)")
+                        if (totalLinesFound == 0) {
+                            error("No coverage data found in any module.")
                         }
                         
-                        float coverage = (linesHit / linesFound) * 100
-                        echo "Current Coverage: ${coverage}% (${linesHit}/${linesFound} lines)"
+                        float coverage = (totalLinesHit / totalLinesFound) * 100
+                        echo "Aggregated Project Coverage: ${String.format('%.2f', coverage)}% (${totalLinesHit}/${totalLinesFound} lines)"
                         
                         if (coverage < 90.0) {
-                            error("Code coverage ${coverage}% is below the required 90% threshold.")
+                            error("Total project coverage ${String.format('%.2f', coverage)}% is below the required 90% threshold.")
                         }
                     } catch (Exception e) {
                         currentBuild.description = "Failed at Unit Tests/Coverage: ${e.message}"
