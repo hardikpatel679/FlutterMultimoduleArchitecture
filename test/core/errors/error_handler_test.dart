@@ -27,7 +27,7 @@ void main() {
 
     test('should return custom app exception message', () {
       const message = 'Custom error';
-      final result = ErrorHandler.getErrorMessage(AppException(message));
+      final result = ErrorHandler.getErrorMessage(ServerException(message));
       expect(result, message);
     });
 
