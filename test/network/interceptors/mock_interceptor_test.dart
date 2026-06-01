@@ -6,9 +6,15 @@ import 'package:network/interceptors/mock_interceptor.dart';
 import 'package:flutter/services.dart';
 
 class MockRequestInterceptorHandler extends Mock implements RequestInterceptorHandler {}
+class FakeResponse extends Fake implements Response {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() {
+    registerFallbackValue(FakeResponse());
+    registerFallbackValue(RequestOptions(path: ''));
+  });
 
   group('MockInterceptor', () {
     late MockInterceptor interceptor;
