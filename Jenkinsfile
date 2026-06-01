@@ -24,36 +24,37 @@ pipeline {
                         import jenkins.model.Jenkins
                         def foundFlavors = []
                         try {
-                            // Get the job and its workspace from the last build
                             def job = Jenkins.get().getItemByFullName(JOB_NAME)
-                            def workspace = job?.getLastBuild()?.getWorkspace()
+                            if (job == null) return ["Error: Job not found"]
                             
-                            if (workspace != null) {
-                                // Search for the Gradle file in the workspace
-                                def gradleFile = workspace.child("android/app/build.gradle.kts")
-                                if (gradleFile.exists()) {
-                                    def text = gradleFile.readToString()
-                                    // Use character classes [ ( ] and [ ) ] to avoid escaping issues in Jenkins
-                                    def matcher = text =~ /create[ \t]*[(][ \t]*["']([^"']+)["'][ \t]*[)]/
-                                    while (matcher.find()) {
-                                        def f = matcher.group(1)
-                                        // Ignore standard Gradle configurations
-                                        if (!["release", "debug", "config", "implementation", "test"].contains(f)) {
-                                            foundFlavors.add(f)
-                                        }
-                                    }
+                            def lastBuild = job.getLastBuild()
+                            if (lastBuild == null) return ["Error: No previous build found"]
+                            
+                            def workspace = lastBuild.getWorkspace()
+                            if (workspace == null) return ["Error: No workspace found"]
+                            
+                            def gradleFile = workspace.child("android/app/build.gradle.kts")
+                            if (!gradleFile.exists()) return ["Error: android/app/build.gradle.kts not found"]
+                            
+                            def text = gradleFile.readToString()
+                            // Simple and effective regex for Kotlin DSL flavors
+                            def matcher = text =~ /create\\s*\\(\\s*["'](.+?)["']\\s*\\)/
+                            while (matcher.find()) {
+                                def f = matcher.group(1)
+                                if (!["release", "debug", "config", "implementation", "test", "android"].contains(f)) {
+                                    foundFlavors.add(f)
                                 }
                             }
                         } catch (Exception e) {
-                            // Silently fail to return empty list if not found
+                            return ["Error: " + e.getMessage()]
                         }
-                        return foundFlavors.unique().sort()
+                        return foundFlavors.unique().sort() ?: ["Error: No flavors detected in file"]
                     ''',
                     sandbox: true
                 ],
                 fallbackScript: [
                     $class: 'SecureGroovyScript',
-                    script: 'return []',
+                    script: 'return ["Error: Script failed"]',
                     sandbox: true
                 ]
             ]
