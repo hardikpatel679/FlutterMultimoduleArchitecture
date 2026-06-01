@@ -11,51 +11,56 @@ pipeline {
             description: 'Select the platform(s) to build.'
         )
         
-        // Requires "Active Choices Plugin"
-        // This script runs on the Jenkins controller to find flavors in the workspace
-        // NOTE: On the first run, this might be empty until code is checked out.
-        // You may need to approve this script in Manage Jenkins > In-process Script Approval.
-        // @NonCPS is required for some Jenkins versions.
+        // Use the explicit $class syntax to resolve the SecureGroovyScript type error
         activeChoice(
-                name: 'FLAVOR',
-                choiceType: 'PT_SINGLE_SELECT',
-                description: 'Select the flavor to build (dynamically fetched from code).',
-                script: groovyScript(
-                        script: '''
-                    import jenkins.model.*
-                    import hudson.model.*
+            name: 'FLAVOR',
+            choiceType: 'PT_SINGLE_SELECT',
+            description: 'Select the flavor to build (dynamically fetched from code).',
+            script: [
+                $class: 'GroovyScript',
+                script: [
+                    $class: 'SecureGroovyScript',
+                    script: '''
+                        import jenkins.model.*
+                        import hudson.model.*
 
-                    def flavors = ["dev", "prod", "mock"] // Default fallbacks
-                    try {
-                        // Get the project object
-                        def project = Jenkins.instance.getItemByFullName(JOB_NAME)
-                        // Get the workspace from the last build
-                        def workspace = project.getLastBuild()?.getWorkspace()
-                        
-                        if (workspace != null) {
-                            def gradleFile = workspace.child("android/app/build.gradle.kts")
-                            if (gradleFile.exists()) {
-                                def text = gradleFile.readToString()
-                                def matcher = text =~ /create\\("([^"]+)"\\)/
-                                def foundFlavors = []
-                                while (matcher.find()) {
-                                    def f = matcher.group(1)
-                                    if (!["release", "debug", "config"].contains(f)) {
-                                        foundFlavors << f
+                        def flavors = ["dev", "prod", "mock"] // Default fallbacks
+                        try {
+                            // Get the project object
+                            def project = Jenkins.instance.getItemByFullName(JOB_NAME)
+                            // Get the workspace from the last build
+                            def workspace = project.getLastBuild()?.getWorkspace()
+                            
+                            if (workspace != null) {
+                                def gradleFile = workspace.child("android/app/build.gradle.kts")
+                                if (gradleFile.exists()) {
+                                    def text = gradleFile.readToString()
+                                    def matcher = text =~ /create\\("([^"]+)"\\)/
+                                    def foundFlavors = []
+                                    while (matcher.find()) {
+                                        def f = matcher.group(1)
+                                        if (!["release", "debug", "config"].contains(f)) {
+                                            foundFlavors << f
+                                        }
+                                    }
+                                    if (foundFlavors) {
+                                        flavors = foundFlavors
                                     }
                                 }
-                                if (foundFlavors) {
-                                    flavors = foundFlavors
-                                }
                             }
+                        } catch (Exception e) {
+                            // If API access fails, it will return the default 'flavors' list
                         }
-                    } catch (Exception e) {
-                        // If API access fails, it will return the default 'flavors' list
-                    }
-                    return flavors.unique().sort()
-                ''',
-                        fallbackScript: 'return ["dev", "prod", "mock"]'
-                )
+                        return flavors.unique().sort()
+                    ''',
+                    sandbox: true
+                ],
+                fallbackScript: [
+                    $class: 'SecureGroovyScript',
+                    script: 'return ["dev", "prod", "mock"]',
+                    sandbox: true
+                ]
+            ]
         )
         
         choice(
@@ -64,7 +69,6 @@ pipeline {
             description: 'Select the Build Type (Variant).'
         )
         
-        // Requires Git Parameter Plugin
         gitParameter(
             name: 'BRANCH_TO_BUILD', 
             type: 'PT_BRANCH', 
@@ -82,11 +86,8 @@ pipeline {
     }
 
     environment {
-        // Path to Flutter SDK on the Jenkins agent
         FLUTTER_HOME = "${HOME}/flutter"
         PATH = "${env.FLUTTER_HOME}/bin:${env.PATH}"
-        
-        // Project Specifics
         REPO_URL = 'https://github.com/hardikpatel679/AndroidMultimoduleDemo.git'
     }
 
@@ -95,13 +96,11 @@ pipeline {
             steps {
                 script {
                     try {
-                        // Resolve branch info
-                        def rawBranch = params.BRANCH_TO_BUILD ?: env.BRANCH_NAME ?: "master"
+                        def rawBranch = params.BRANCH_TO_BUILD ?: env.BRANCH_NAME ?: "main"
                         env.CURRENT_BRANCH = rawBranch
                         
                         echo "Building Branch: ${env.CURRENT_BRANCH}"
 
-                        // Checkout code
                         checkout([$class: 'GitSCM', 
                             branches: [[name: "${rawBranch}"]], 
                             userRemoteConfigs: [[url: "${env.REPO_URL}"]]
@@ -133,7 +132,6 @@ pipeline {
                         echo "--- Running Unit Tests and Checking Coverage ---"
                         sh 'flutter test --coverage'
                         
-                        // Check coverage threshold (requires lcov on the agent)
                         def coverageOutput = sh(script: "lcov --summary coverage/lcov.info | grep lines | cut -d ' ' -f 4 | cut -d '%' -f 1", returnStdout: true).trim()
                         float coverage = coverageOutput.toFloat()
                         
