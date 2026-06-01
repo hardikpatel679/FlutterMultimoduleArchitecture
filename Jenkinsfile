@@ -17,38 +17,45 @@ pipeline {
         // You may need to approve this script in Manage Jenkins > In-process Script Approval.
         // @NonCPS is required for some Jenkins versions.
         activeChoice(
-            name: 'FLAVOR',
-            choiceType: 'PT_SINGLE_SELECT',
-            description: 'Select the flavor to build (dynamically fetched from code).',
-            script: groovyScript(
-                script: '''
-                    def flavors = ["dev", "prod", "mock"]
+                name: 'FLAVOR',
+                choiceType: 'PT_SINGLE_SELECT',
+                description: 'Select the flavor to build (dynamically fetched from code).',
+                script: groovyScript(
+                        script: '''
+                    import jenkins.model.*
+                    import hudson.model.*
+
+                    def flavors = ["dev", "prod", "mock"] // Default fallbacks
                     try {
-                        // JOB_NAME is available in Active Choices script context
-                        def workspacePath = "/var/jenkins_home/workspace/${JOB_NAME}"
-                        def gradleFile = new File(workspacePath, "android/app/build.gradle.kts")
+                        // Get the project object
+                        def project = Jenkins.instance.getItemByFullName(JOB_NAME)
+                        // Get the workspace from the last build
+                        def workspace = project.getLastBuild()?.getWorkspace()
                         
-                        if (gradleFile.exists()) {
-                            def text = gradleFile.text
-                            def matcher = text =~ /create\\("([^"]+)"\\)/
-                            def foundFlavors = []
-                            while (matcher.find()) {
-                                def f = matcher.group(1)
-                                if (!["release", "debug", "config"].contains(f)) {
-                                    foundFlavors << f
+                        if (workspace != null) {
+                            def gradleFile = workspace.child("android/app/build.gradle.kts")
+                            if (gradleFile.exists()) {
+                                def text = gradleFile.readToString()
+                                def matcher = text =~ /create\\("([^"]+)"\\)/
+                                def foundFlavors = []
+                                while (matcher.find()) {
+                                    def f = matcher.group(1)
+                                    if (!["release", "debug", "config"].contains(f)) {
+                                        foundFlavors << f
+                                    }
+                                }
+                                if (foundFlavors) {
+                                    flavors = foundFlavors
                                 }
                             }
-                            if (foundFlavors) {
-                                flavors = foundFlavors
-                            }
                         }
-                    } catch (e) {
-                        // Fallback
+                    } catch (Exception e) {
+                        // If API access fails, it will return the default 'flavors' list
                     }
                     return flavors.unique().sort()
                 ''',
-                fallbackScript: 'return ["dev", "prod", "mock"]'
-            )
+                        fallbackScript: 'return ["dev", "prod", "mock"]'
+                )
         )
         
         choice(
