@@ -33,12 +33,12 @@ pipeline {
                                 def gradleFile = workspace.child("android/app/build.gradle.kts")
                                 if (gradleFile.exists()) {
                                     def text = gradleFile.readToString()
-                                    // Regex to find create("flavorName")
-                                    def matcher = text =~ /create\\("([^"]+)"\\)/
+                                    // Improved regex to handle single/double quotes and spaces
+                                    def matcher = text =~ /create\\s*\\(\\s*["']([^"']+)["']\\s*\\)/
                                     while (matcher.find()) {
                                         def f = matcher.group(1)
-                                        // Ignore standard build types/configs
-                                        if (!["release", "debug", "config"].contains(f)) {
+                                        // Ignore standard Gradle configurations
+                                        if (!["release", "debug", "config", "implementation", "test"].contains(f)) {
                                             foundFlavors.add(f)
                                         }
                                     }
