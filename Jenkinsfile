@@ -24,17 +24,23 @@ pipeline {
                         import jenkins.model.Jenkins
                         def foundFlavors = []
                         try {
-                            def jobName = binding.variables.get('JOB_NAME')
-                            if (jobName == null) return ["Error: JOB_NAME not found in binding"]
+                            def jobName = null
+                            if (binding.hasVariable('JOB_NAME')) {
+                                jobName = JOB_NAME
+                            } else if (binding.hasVariable('project')) {
+                                jobName = project.fullName
+                            }
+                            
+                            if (jobName == null) return ["Error: Job name not found. Available keys: " + binding.variables.keySet()]
                             
                             def job = Jenkins.get().getItemByFullName(jobName)
                             if (job == null) return ["Error: Job not found: " + jobName]
                             
                             def lastBuild = job.getLastBuild()
-                            if (lastBuild == null) return ["Error: No previous build found"]
+                            if (lastBuild == null) return ["Error: No previous build found for " + jobName]
                             
                             def workspace = lastBuild.getWorkspace()
-                            if (workspace == null) return ["Error: No workspace found"]
+                            if (workspace == null) return ["Error: No workspace found for " + jobName]
                             
                             def gradleFile = workspace.child("android/app/build.gradle.kts")
                             if (!gradleFile.exists()) return ["Error: android/app/build.gradle.kts not found"]
