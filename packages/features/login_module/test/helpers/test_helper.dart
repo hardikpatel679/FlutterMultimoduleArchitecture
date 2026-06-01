@@ -11,9 +11,14 @@ class TestHelper {
     final file = File('assets/mocks/login_success.json');
     if (!file.existsSync()) {
       // Fallback for running from inside a subfolder or package
-      final alternateFile = File('../../../assets/mocks/login_success.json');
+      final alternateFile = File('../../assets/mocks/login_success.json');
       if (alternateFile.existsSync()) {
         return _parseUser(alternateFile);
+      }
+      // Another fallback for deep nested tests
+      final alternateFile2 = File('../../../assets/mocks/login_success.json');
+      if (alternateFile2.existsSync()) {
+        return _parseUser(alternateFile2);
       }
       throw Exception('Could not find mock JSON file at ${file.absolute.path}');
     }
