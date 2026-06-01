@@ -26,10 +26,13 @@ pipeline {
         )
         
         // Requires Git Parameter Plugin
-        string(
+        gitParameter(
             name: 'BRANCH_TO_BUILD', 
+            type: 'PT_BRANCH', 
             defaultValue: 'main', 
-            description: 'Branch to build'
+            description: 'Select the branch to build',
+            sortMode: 'ASCENDING_SMART',
+            selectedValue: 'NONE'
         )
 
         text(
