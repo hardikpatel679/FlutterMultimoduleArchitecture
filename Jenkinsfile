@@ -42,7 +42,15 @@ pipeline {
                             def lastBuild = job.getLastBuild()
                             if (lastBuild == null) return ["Error: No previous build found for " + jobName]
                             
-                            def workspace = lastBuild.getWorkspace()
+                            // Specific fix for Pipeline jobs: find workspace through Actions
+                            def workspace = null
+                            for (action in lastBuild.getActions()) {
+                                if (action.getClass().getName().contains("WorkspaceAction")) {
+                                    workspace = action.getWorkspace()
+                                    break
+                                }
+                            }
+
                             if (workspace == null) return ["Error: No workspace found for " + jobName]
                             
                             def gradleFile = workspace.child("android/app/build.gradle.kts")
