@@ -96,6 +96,58 @@ pipeline {
             }
         }
 
+        stage('Unit Test and Code Coverage') {
+            steps {
+                script {
+                    try {
+                        echo "--- Running Unit Tests and Checking Coverage ---"
+                        // Run tests with coverage
+                        sh 'flutter test --coverage'
+                        
+                        // Check coverage threshold (requires lcov/genhtml on the agent)
+                        // This script extracts the total line coverage percentage
+                        def coverageOutput = sh(script: "lcov --summary coverage/lcov.info | grep lines | cut -d ' ' -f 4 | cut -d '%' -f 1", returnStdout: true).trim()
+                        float coverage = coverageOutput.toFloat()
+                        
+                        echo "Current Coverage: ${coverage}%"
+                        
+                        if (coverage < 90.0) {
+                            error("Code coverage ${coverage}% is below the required 90% threshold.")
+                        }
+                    } catch (Exception e) {
+                        currentBuild.description = "Failed at Unit Tests/Coverage: ${e.message}"
+                        error("Unit Test or Coverage verification failed.")
+                    }
+                }
+            }
+        }
+
+        stage('FVT (Functional Verification Tests)') {
+            steps {
+                script {
+                    try {
+                        echo "--- Running Functional Verification Tests ---"
+                        // For Flutter, this usually means Integration Tests
+                        // You need a running emulator/device or a service like Firebase Test Lab
+                        sh 'flutter test integration_test'
+                    } catch (Exception _) {
+                        currentBuild.description = "Failed at FVT: UI/Integration Tests failed."
+                        error("Integration Testing (FVT) failed.")
+                    }
+                }
+            }
+        }
+
+        stage('Gate') {
+            steps {
+                script {
+                    echo "--- Quality Gate Passed ---"
+                    // You can add manual approval here if needed
+                    // input message: 'Approve build for deployment?', ok: 'Deploy'
+                }
+            }
+        }
+
         stage('Build Android') {
             when {
                 expression { params.PLATFORM == 'Android' || params.PLATFORM == 'Both' }
