@@ -45,12 +45,17 @@ pipeline {
                             // Iterate back through builds to find one with a valid workspace directory that still exists
                             while (build != null && workspace == null) {
                                 def tempWs = null
-                                for (action in build.getActions()) {
-                                    if (action.getClass().getName().contains("WorkspaceAction")) {
-                                        tempWs = action.getWorkspace()
-                                        break
+                                try {
+                                    for (action in build.getActions()) {
+                                        if (action.getClass().getName().contains("WorkspaceAction")) {
+                                            tempWs = action.getWorkspace()
+                                            break
+                                        }
                                     }
+                                } catch (e) {
+                                    // Action might not be accessible
                                 }
+
                                 if (tempWs != null && tempWs.exists()) {
                                     workspace = tempWs
                                 } else {

@@ -12,7 +12,7 @@ void main() {
 
   setUp(() {
     mockRepository = MockLoginRepository();
-    useCase = LoginUseCase(repository: mockRepository);
+    useCase = LoginUseCase(mockRepository);
   });
 
   final tUser = User(
