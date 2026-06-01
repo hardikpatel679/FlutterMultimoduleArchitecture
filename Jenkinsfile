@@ -231,8 +231,9 @@ pipeline {
             }
             post {
                 success {
-                    // Archive all APKs found in the build directory
-                    archiveArtifacts artifacts: '**/build/**/outputs/flutter-apk/*.apk', fingerprint: true
+                    // Only archive the APK that matches the selected flavor and variant
+                    // This excludes the debug APKs created during integration testing
+                    archiveArtifacts artifacts: "build/app/outputs/flutter-apk/app-${env.SELECTED_FLAVOR}-${env.SELECTED_VARIANT}.apk", fingerprint: true
                 }
             }
         }
@@ -245,10 +246,10 @@ pipeline {
                 script {
                     try {
                         echo "Building iOS for flavor: ${env.SELECTED_FLAVOR}"
-                        // Build the iOS app bundle
+                        // Build the iOS app bundle (.app)
                         sh "flutter build ios --flavor ${env.SELECTED_FLAVOR} --${env.SELECTED_VARIANT} --no-codesign"
                         
-                        // Package the .app into a ZIP so you have a downloadable build artifact
+                        // Package the .app into a ZIP for easy download and manual signing
                         sh "cd build/ios/iphoneos && zip -r ../../../Runner-iOS-${env.SELECTED_FLAVOR}.zip Runner.app"
                     } catch (Exception e) {
                         currentBuild.description = "Failed at Build iOS: ${e.message}"
@@ -258,9 +259,8 @@ pipeline {
             }
             post {
                 success {
-                    // Archive the ZIP and the xcarchive
-                    archiveArtifacts artifacts: '*.zip', fingerprint: true
-                    archiveArtifacts artifacts: 'build/ios/archive/*.xcarchive/**', allowEmptyArchive: true, fingerprint: true
+                    // Save the ZIP as the primary iOS build artifact
+                    archiveArtifacts artifacts: 'Runner-iOS-*.zip', fingerprint: true
                 }
             }
         }
