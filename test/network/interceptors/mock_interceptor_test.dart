@@ -30,24 +30,18 @@ void main() {
       // Arrange
       const tJson = '{"id": 1, "username": "mock"}';
       
-      // Use the specific channel name for assets
+      // Asset loading uses raw messages on the 'flutter/assets' channel
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(const MethodChannel('flutter/assets'), (MethodCall message) async {
-        if (message.method == 'loadString') {
-           // Not how it works, usually it's just 'load' or it's not a method call
-        }
+          .setMockMessageHandler('flutter/assets', (ByteData? message) async {
         return ByteData.view(Uint8List.fromList(utf8.encode(tJson)).buffer);
       });
 
-      // Actually, rootBundle.loadString calls load() which calls send() on the messenger.
-      // The key for assets is usually the path itself.
-      
       final options = RequestOptions(path: '/login');
 
       // Act
       interceptor.onRequest(options, handler);
       
-      // Wait for the internal async operations (latency simulation + json decode)
+      // Wait for internal async operations
       await Future.delayed(const Duration(milliseconds: 1200));
 
       // Assert
