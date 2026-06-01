@@ -55,24 +55,50 @@ void main() {
     });
 
     test('should throw NetworkException on timeout', () async {
-      when(() => mockDio.get(any(), options: any(named: 'options')))
-          .thenThrow(DioException(
-        requestOptions: RequestOptions(path: ''),
-        type: DioExceptionType.connectionTimeout,
-      ));
+      final types = [
+        DioExceptionType.connectionTimeout,
+        DioExceptionType.sendTimeout,
+        DioExceptionType.receiveTimeout,
+        DioExceptionType.connectionError,
+      ];
 
-      expect(() => dataSource.getRequest('test'), throwsA(isA<NetworkException>()));
+      for (var type in types) {
+        when(() => mockDio.get(any(), options: any(named: 'options')))
+            .thenThrow(DioException(
+          requestOptions: RequestOptions(path: ''),
+          type: type,
+        ));
+
+        expect(() => dataSource.getRequest('test'), throwsA(isA<NetworkException>()));
+      }
     });
     
-    test('should throw ServerException on 500', () async {
+    test('should throw UnknownException on cancel or other', () async {
       when(() => mockDio.get(any(), options: any(named: 'options')))
           .thenThrow(DioException(
         requestOptions: RequestOptions(path: ''),
-        response: Response(statusCode: 500, requestOptions: RequestOptions(path: '')),
+        type: DioExceptionType.cancel,
+      ));
+
+      expect(() => dataSource.getRequest('test'), throwsA(isA<UnknownException>()));
+    });
+
+    test('should throw NotFoundException on 404', () async {
+      when(() => mockDio.get(any(), options: any(named: 'options')))
+          .thenThrow(DioException(
+        requestOptions: RequestOptions(path: ''),
+        response: Response(statusCode: 404, requestOptions: RequestOptions(path: '')),
         type: DioExceptionType.badResponse,
       ));
 
-      expect(() => dataSource.getRequest('test'), throwsA(isA<ServerException>()));
+      expect(() => dataSource.getRequest('test'), throwsA(isA<NotFoundException>()));
+    });
+
+    test('should handle generic exception in _performRequest', () async {
+      when(() => mockDio.get(any(), options: any(named: 'options')))
+          .thenThrow(Exception('Generic Error'));
+
+      expect(() => dataSource.getRequest('test'), throwsA(isA<UnknownException>()));
     });
   });
 }
