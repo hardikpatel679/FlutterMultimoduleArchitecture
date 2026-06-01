@@ -21,24 +21,31 @@ pipeline {
                 script: [
                     $class: 'SecureGroovyScript',
                     script: '''
+                        import jenkins.model.Jenkins
                         def foundFlavors = []
                         try {
-                            // Use the environment variable for the workspace directly
-                            def workspacePath = System.getenv("WORKSPACE") ?: "/var/jenkins_home/workspace/${JOB_NAME}"
-                            def gradleFile = new File(workspacePath, "android/app/build.gradle.kts")
+                            // Get the job and its workspace from the last build
+                            def job = Jenkins.get().getItemByFullName(JOB_NAME)
+                            def workspace = job?.getLastBuild()?.getWorkspace()
                             
-                            if (gradleFile.exists()) {
-                                def text = gradleFile.text
-                                def matcher = text =~ /create\\("([^"]+)"\\)/
-                                while (matcher.find()) {
-                                    def f = matcher.group(1)
-                                    if (!["release", "debug", "config"].contains(f)) {
-                                        foundFlavors << f
+                            if (workspace != null) {
+                                // Search for the Gradle file in the workspace
+                                def gradleFile = workspace.child("android/app/build.gradle.kts")
+                                if (gradleFile.exists()) {
+                                    def text = gradleFile.readToString()
+                                    // Regex to find create("flavorName")
+                                    def matcher = text =~ /create\\("([^"]+)"\\)/
+                                    while (matcher.find()) {
+                                        def f = matcher.group(1)
+                                        // Ignore standard build types/configs
+                                        if (!["release", "debug", "config"].contains(f)) {
+                                            foundFlavors.add(f)
+                                        }
                                     }
                                 }
                             }
                         } catch (Exception e) {
-                            // Handle potential access issues
+                            // Silently fail to return empty list if not found
                         }
                         return foundFlavors.unique().sort()
                     ''',
