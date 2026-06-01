@@ -8,6 +8,8 @@ import 'package:core/generated/l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:core/errors/app_exceptions.dart';
 import 'package:domain/usecases/login_usecase.dart';
+import 'package:core/constants/app_constants.dart';
+import 'package:core/constants/app_strings.dart';
 
 
 class MockLoginUseCase extends Mock implements LoginUseCase {}
@@ -48,15 +50,34 @@ void main() {
           .thenThrow(UnauthorizedException());
 
       await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle(); // Wait for localization to load
+      await tester.pumpAndSettle();
 
       // Act
-      // Find by type as text might be localized
-      await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key(AppConstants.keyLoginButton)));
+      await tester.pump(); // Start the async operation
+      await tester.pump(); // Handle the result and show SnackBar
+      await tester.pump(const Duration(milliseconds: 750)); // Allow SnackBar to start appearing
 
       // Assert
       expect(find.byType(SnackBar), findsOneWidget);
+    });
+
+    testWidgets('should show validation error when fields are empty', (WidgetTester tester) async {
+      // Arrange
+      viewModel.usernameController.text = '';
+      viewModel.passwordController.text = '';
+
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      // Act
+      await tester.tap(find.byKey(const Key(AppConstants.keyLoginButton)));
+      await tester.pump(); // Handle validation logic
+      await tester.pump(const Duration(milliseconds: 750));
+
+      // Assert
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text(AppStrings.errValidation), findsOneWidget);
     });
 
     testWidgets('should update ViewModel controllers when typing', (WidgetTester tester) async {
