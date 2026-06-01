@@ -73,7 +73,8 @@ pipeline {
 
     environment {
         FLUTTER_HOME = "${HOME}/flutter"
-        PATH = "${env.FLUTTER_HOME}/bin:${env.PATH}"
+        // Ensure Homebrew and standard binary paths are included for CocoaPods
+        PATH = "/opt/homebrew/bin:/usr/local/bin:${env.FLUTTER_HOME}/bin:${env.PATH}"
         REPO_URL = 'https://github.com/hardikpatel679/FlutterMultimoduleArchitecture.git'
     }
 
@@ -106,6 +107,7 @@ pipeline {
         stage('Prepare') {
             steps {
                 sh 'flutter doctor'
+                sh 'pod --version' // Verify CocoaPods is accessible
                 sh 'flutter pub get'
             }
         }
