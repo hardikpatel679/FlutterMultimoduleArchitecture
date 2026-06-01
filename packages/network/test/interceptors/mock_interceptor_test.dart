@@ -58,5 +58,25 @@ void main() {
       // Assert
       verify(() => handler.next(options)).called(1);
     });
+
+    test('onRequest should reject when asset loading fails', () async {
+      // Arrange
+      // Simulate failure by throwing in the mock handler
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMessageHandler('flutter/assets', (message) async {
+        throw Exception('Asset Load Failure');
+      });
+
+      final options = RequestOptions(path: '/login');
+
+      // Act
+      interceptor.onRequest(options, handler);
+      
+      // Wait for async operations and catch block
+      await Future.delayed(const Duration(milliseconds: 1200));
+
+      // Assert
+      verify(() => handler.reject(any(that: isA<DioException>()))).called(1);
+    });
   });
 }

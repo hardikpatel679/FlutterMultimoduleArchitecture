@@ -156,6 +156,30 @@ pipeline {
                         float coverage = (totalLinesHit / totalLinesFound) * 100
                         echo "Aggregated Project Coverage: ${String.format('%.2f', coverage)}% (${totalLinesHit}/${totalLinesFound} lines)"
                         
+                        // Per-module breakdown for debugging
+                        echo "--- Coverage Breakdown ---"
+                        for (module in modules) {
+                            def lcovPath = "${module}/coverage/lcov.info"
+                            if (fileExists(lcovPath)) {
+                                def content = readFile(lcovPath)
+                                def mFound = 0
+                                def mHit = 0
+                                def mLines = content.split('\n')
+                                for (int j = 0; j < mLines.length; j++) {
+                                    def l = mLines[j].trim()
+                                    if (l.startsWith('LF:')) {
+                                        mFound += (l.split(':')[1] as Integer)
+                                    } else if (l.startsWith('LH:')) {
+                                        mHit += (l.split(':')[1] as Integer)
+                                    }
+                                }
+                                if (mFound > 0) {
+                                    def mPerc = (mHit / mFound) * 100
+                                    echo "${module}: ${String.format('%.2f', mPerc)}% (${mHit}/${mFound})"
+                                }
+                            }
+                        }
+
                         if (coverage < 90.0) {
                             error("Total project coverage ${String.format('%.2f', coverage)}% is below the required 90% threshold.")
                         }
