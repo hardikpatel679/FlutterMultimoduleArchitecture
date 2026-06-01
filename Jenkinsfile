@@ -28,6 +28,8 @@ pipeline {
                             def vars = binding.variables
                             if (vars.containsKey('JOB_NAME')) {
                                 jobName = vars.get('JOB_NAME')
+                            } else if (vars.containsKey('jenkinsProject')) {
+                                jobName = vars.get('jenkinsProject').fullName
                             } else if (vars.containsKey('project')) {
                                 jobName = vars.get('project').fullName
                             }
