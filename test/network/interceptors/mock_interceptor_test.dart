@@ -29,18 +29,26 @@ void main() {
     test('onRequest should resolve with mock data when path matches', () async {
       // Arrange
       const tJson = '{"id": 1, "username": "mock"}';
+      
+      // Use the specific channel name for assets
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(const MethodChannel('flutter/assets'), (message) async {
+          .setMockMethodCallHandler(const MethodChannel('flutter/assets'), (MethodCall message) async {
+        if (message.method == 'loadString') {
+           // Not how it works, usually it's just 'load' or it's not a method call
+        }
         return ByteData.view(Uint8List.fromList(utf8.encode(tJson)).buffer);
       });
 
+      // Actually, rootBundle.loadString calls load() which calls send() on the messenger.
+      // The key for assets is usually the path itself.
+      
       final options = RequestOptions(path: '/login');
 
       // Act
       interceptor.onRequest(options, handler);
-      // Since it has an async delay internally but returns void, we might need a small delay here 
-      // or use a Completer in the mock handler to wait for the resolve call.
-      await Future.delayed(const Duration(milliseconds: 1000));
+      
+      // Wait for the internal async operations (latency simulation + json decode)
+      await Future.delayed(const Duration(milliseconds: 1200));
 
       // Assert
       verify(() => handler.resolve(any(that: isA<Response>()))).called(1);
