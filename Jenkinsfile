@@ -1,9 +1,6 @@
 pipeline {
     agent any
 
-    // =========================================================================
-    // BUILD PARAMETERS
-    // =========================================================================
     parameters {
         choice(
             name: 'PLATFORM',
@@ -11,7 +8,7 @@ pipeline {
             description: 'Select the platform(s) to build.'
         )
         
-        // Use the explicit $class syntax to resolve the SecureGroovyScript type error
+        // Active Choice Parameter for Dynamic Flavor Selection
         activeChoice(
             name: 'FLAVOR',
             choiceType: 'PT_SINGLE_SELECT',
@@ -23,71 +20,64 @@ pipeline {
                     script: '''
                         def foundFlavors = []
                         try {
-                            def jobName = null
-                            def vars = binding.variables
-                            if (vars.containsKey('JOB_NAME')) {
-                                jobName = vars.get('JOB_NAME')
-                            } else if (vars.containsKey('jenkinsProject')) {
-                                jobName = vars.get('jenkinsProject').fullName
-                            } else if (vars.containsKey('project')) {
-                                jobName = vars.get('project').fullName
-                            }
+                            // Try to find workspace path
+                            def workspacePath = null
                             
-                            def workspace = null
+                            // 1. Try environment variable (rarely available in params script)
+                            workspacePath = System.getenv("WORKSPACE")
                             
-                            // 1. Try to find workspace via Jenkins API
-                            if (jobName != null) {
+                            // 2. Try Jenkins API via binding variables
+                            if (workspacePath == null) {
                                 try {
-                                    def job = jenkins.model.Jenkins.instance.getItemByFullName(jobName)
-                                    def build = job?.getLastBuild()
-                                    while (build != null && workspace == null) {
-                                        for (action in build.getActions()) {
-                                            if (action.class.name.contains("WorkspaceAction")) {
-                                                def ws = action.getWorkspace()
-                                                if (ws != null && ws.exists()) {
-                                                    workspace = ws
-                                                    break
+                                    def jobName = null
+                                    if (binding.variables.containsKey("JOB_NAME")) {
+                                        jobName = binding.variables.get("JOB_NAME")
+                                    } else if (binding.variables.containsKey("jenkinsProject")) {
+                                        jobName = binding.variables.get("jenkinsProject").fullName
+                                    }
+                                    
+                                    if (jobName != null) {
+                                        def job = jenkins.model.Jenkins.instance.getItemByFullName(jobName)
+                                        def build = job?.getLastBuild()
+                                        while (build != null && workspacePath == null) {
+                                            for (action in build.getActions()) {
+                                                if (action.class.name.contains("WorkspaceAction")) {
+                                                    def ws = action.getWorkspace()
+                                                    if (ws != null && ws.exists()) {
+                                                        workspacePath = ws.getRemote()
+                                                        break
+                                                    }
                                                 }
                                             }
+                                            build = build.getPreviousBuild()
                                         }
-                                        build = build.getPreviousBuild()
                                     }
-                                } catch (e) { /* ignore API errors */ }
+                                } catch (e) { }
                             }
                             
-                            // 2. Fallback to hardcoded path based on your logs if API fails
-                            if (workspace == null) {
-                                def hardcodedPath = "/Users/hardikp/.jenkins/workspace/FlutterMultimoduleArchitecture"
-                                def folder = new File(hardcodedPath)
-                                if (folder.exists()) {
-                                    def gradleFile = new File(folder, "android/app/build.gradle.kts")
-                                    if (gradleFile.exists()) {
-                                        def text = gradleFile.text
-                                        def matcher = text =~ /create[ \t]*[(][ \t]*["'](.+?)["'][ \t]*[)]/
-                                        while (matcher.find()) {
-                                            def f = matcher.group(1)
-                                            if (!["release", "debug", "config", "implementation", "test", "android"].contains(f)) {
-                                                foundFlavors.add(f)
-                                            }
-                                        }
-                                    }
-                                }
-                            } else {
-                                // Use the workspace found via API
-                                def gradleFile = workspace.child("android/app/build.gradle.kts")
+                            // 3. Fallback to hardcoded path from build logs
+                            if (workspacePath == null) {
+                                workspacePath = "/Users/hardikp/.jenkins/workspace/FlutterMultimoduleArchitecture"
+                            }
+                            
+                            // Parse the file using Jenkins sandbox-friendly methods if possible
+                            // However, Active Choices usually requires these signatures:
+                            if (workspacePath != null) {
+                                def gradleFile = new java.io.File(workspacePath, "android/app/build.gradle.kts")
                                 if (gradleFile.exists()) {
-                                    def text = gradleFile.readToString()
-                                    def matcher = text =~ /create[ \t]*[(][ \t]*["'](.+?)["'][ \t]*[)]/
+                                    def text = gradleFile.text
+                                    // Robust regex
+                                    def matcher = text =~ /create\\s*\\(\\s*["']([^"']+)["']\\s*\\)/
                                     while (matcher.find()) {
                                         def f = matcher.group(1)
-                                        if (!["release", "debug", "config", "implementation", "test", "android"].contains(f)) {
+                                        if (!["release", "debug", "config", "implementation", "test"].contains(f)) {
                                             foundFlavors.add(f)
                                         }
                                     }
                                 }
                             }
                         } catch (Exception e) {
-                            return ["Error: " + e.getMessage()]
+                            // Ignore and return defaults
                         }
                         return foundFlavors.unique().sort() ?: ["dev", "prod", "mock"]
                     ''',
@@ -95,7 +85,7 @@ pipeline {
                 ],
                 fallbackScript: [
                     $class: 'SecureGroovyScript',
-                    script: 'return ["Error: Script failed"]',
+                    script: 'return ["dev", "prod", "mock"]',
                     sandbox: true
                 ]
             ]
@@ -110,7 +100,7 @@ pipeline {
         gitParameter(
             name: 'BRANCH_TO_BUILD', 
             type: 'PT_BRANCH', 
-            defaultValue: 'main', 
+            defaultValue: 'master', 
             description: 'Select the branch to build',
             sortMode: 'ASCENDING_SMART',
             selectedValue: 'NONE'
@@ -134,9 +124,8 @@ pipeline {
             steps {
                 script {
                     try {
-                        def rawBranch = params.BRANCH_TO_BUILD ?: env.BRANCH_NAME ?: "master"
+                        def rawBranch = params.BRANCH_TO_BUILD ?: "master"
                         env.CURRENT_BRANCH = rawBranch
-                        
                         echo "Building Branch: ${env.CURRENT_BRANCH}"
 
                         checkout([$class: 'GitSCM', 
@@ -170,7 +159,6 @@ pipeline {
                         echo "--- Running Unit Tests and Checking Coverage ---"
                         sh 'flutter test --coverage'
                         
-                        // Use a more CPS-friendly way to parse the file
                         def lcovContent = readFile('coverage/lcov.info')
                         if (!lcovContent) {
                             error("coverage/lcov.info is empty or not found")
@@ -179,7 +167,6 @@ pipeline {
                         def linesFound = 0
                         def linesHit = 0
                         
-                        // Split by newline and iterate
                         def lines = lcovContent.split('\n')
                         for (int i = 0; i < lines.length; i++) {
                             def line = lines[i].trim()
@@ -195,10 +182,10 @@ pipeline {
                         }
                         
                         float coverage = (linesHit / linesFound) * 100
-                        echo "Current Coverage: ${String.format('%.2f', coverage)}% (${linesHit}/${linesFound} lines)"
+                        echo "Current Coverage: ${coverage}% (${linesHit}/${linesFound} lines)"
                         
                         if (coverage < 90.0) {
-                            error("Code coverage ${String.format('%.2f', coverage)}% is below the required 90% threshold.")
+                            error("Code coverage ${coverage}% is below the required 90% threshold.")
                         }
                     } catch (Exception e) {
                         currentBuild.description = "Failed at Unit Tests/Coverage: ${e.message}"
@@ -289,9 +276,8 @@ pipeline {
 
     post {
         always {
-            echo "Build finished. Files preserved for flavor detection."
-            // Commented out to allow dynamic flavor detection to find the workspace
-            // cleanWs()
+            echo "Pipeline finished. Current coverage files preserved."
+            // cleanWs() // Keep workspace to allow parameter scripts to read it
         }
     }
 }
