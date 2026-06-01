@@ -33,8 +33,8 @@ pipeline {
                                 def gradleFile = workspace.child("android/app/build.gradle.kts")
                                 if (gradleFile.exists()) {
                                     def text = gradleFile.readToString()
-                                    // Improved regex to handle single/double quotes and spaces
-                                    def matcher = text =~ /create\\s*\\(\\s*["']([^"']+)["']\\s*\\)/
+                                    // Use character classes [ ( ] and [ ) ] to avoid escaping issues in Jenkins
+                                    def matcher = text =~ /create[\\s]*[(][\\s]*["']([^"']+)["'][\\s]*[)]/
                                     while (matcher.find()) {
                                         def f = matcher.group(1)
                                         // Ignore standard Gradle configurations
