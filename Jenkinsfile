@@ -227,7 +227,7 @@ pipeline {
             }
             post {
                 success {
-                    archiveArtifacts artifacts: 'build/ios/ipa/*.ipa', fingerprint: true
+                    archiveArtifacts artifacts: 'build/ios/ipa/*.ipa', allowEmptyArchive: true, fingerprint: true
                 }
             }
         }
