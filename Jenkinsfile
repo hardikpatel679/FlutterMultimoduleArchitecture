@@ -11,13 +11,8 @@ pipeline {
             description: 'Select the platform(s) to build.'
         )
         
-        // This will be populated dynamically in some Jenkins setups, 
-        // but here we define the standard ones as defaults.
-        choice(
-            name: 'FLAVOR', 
-            choices: ['dev', 'prod', 'mock', 'all'],
-            description: 'Select the flavor to build.'
-        )
+        // FLAVOR selection is now dynamic and occurs in the 'Initialize' stage 
+        // after the code is checked out, ensuring it matches your project's flavors.
         
         choice(
             name: 'VARIANT', 
@@ -68,16 +63,27 @@ pipeline {
                             userRemoteConfigs: [[url: "${env.REPO_URL}"]]
                         ])
 
-                        // Extract flavors dynamically from android/app/build.gradle.kts if available
-                        // This mimics your provided logic but targets the Flutter Android path
+                        // Extract flavors dynamically from android/app/build.gradle.kts
                         if (fileExists('android/app/build.gradle.kts')) {
                             env.PROJECT_FLAVORS = sh(script: "grep -o 'create(\"[^\"]*\")' android/app/build.gradle.kts | cut -d'\"' -f2 | grep -vE 'release|debug|config' | sort -u | tr '\\n' ',' | sed 's/,\$//'", returnStdout: true).trim()
                             echo "Detected Project Flavors: ${env.PROJECT_FLAVORS}"
                         }
                         
-                        env.SELECTED_FLAVOR = params.FLAVOR ?: 'dev'
+                        // Dynamically populate flavor selection from detected flavors
+                        if (env.PROJECT_FLAVORS) {
+                            def flavorList = env.PROJECT_FLAVORS.split(',')
+                            env.SELECTED_FLAVOR = input(
+                                message: 'Select flavor to build',
+                                parameters: [
+                                    choice(name: 'FLAVOR', choices: flavorList, description: 'Choose a flavor from the project code')
+                                ]
+                            )
+                        } else {
+                            env.SELECTED_FLAVOR = 'dev'
+                        }
+
                         env.SELECTED_VARIANT = params.VARIANT?.toLowerCase() ?: 'release'
-                        env.BUILD_ALL = (env.SELECTED_FLAVOR == 'all').toString()
+                        env.BUILD_ALL = 'false'
                     } catch (Exception e) {
                         currentBuild.description = "Failed at Initialize: ${e.message}"
                         error("Initialization failed: ${e.message}")
@@ -155,16 +161,8 @@ pipeline {
             steps {
                 script {
                     try {
-                        if (env.BUILD_ALL == 'true') {
-                            def flavors = env.PROJECT_FLAVORS.split(',')
-                            for (flavor in flavors) {
-                                echo "Building Android APK for flavor: ${flavor}"
-                                sh "flutter build apk --flavor ${flavor} --${env.SELECTED_VARIANT}"
-                            }
-                        } else {
-                            echo "Building Android APK for flavor: ${env.SELECTED_FLAVOR}"
-                            sh "flutter build apk --flavor ${env.SELECTED_FLAVOR} --${env.SELECTED_VARIANT}"
-                        }
+                        echo "Building Android APK for flavor: ${env.SELECTED_FLAVOR}"
+                        sh "flutter build apk --flavor ${env.SELECTED_FLAVOR} --${env.SELECTED_VARIANT}"
                     } catch (Exception e) {
                         currentBuild.description = "Failed at Build Android: ${e.message}"
                         error("Android Build failed.")
@@ -186,16 +184,8 @@ pipeline {
                 script {
                     try {
                         // Note: iOS builds require a Mac agent with proper certs
-                        if (env.BUILD_ALL == 'true') {
-                            def flavors = env.PROJECT_FLAVORS.split(',')
-                            for (flavor in flavors) {
-                                echo "Building iOS IPA for flavor: ${flavor}"
-                                sh "flutter build ipa --flavor ${flavor} --${env.SELECTED_VARIANT} --no-codesign"
-                            }
-                        } else {
-                            echo "Building iOS IPA for flavor: ${env.SELECTED_FLAVOR}"
-                            sh "flutter build ipa --flavor ${env.SELECTED_FLAVOR} --${env.SELECTED_VARIANT} --no-codesign"
-                        }
+                        echo "Building iOS IPA for flavor: ${env.SELECTED_FLAVOR}"
+                        sh "flutter build ipa --flavor ${env.SELECTED_FLAVOR} --${env.SELECTED_VARIANT} --no-codesign"
                     } catch (Exception e) {
                         currentBuild.description = "Failed at Build iOS: ${e.message}"
                         error("iOS Build failed.")
