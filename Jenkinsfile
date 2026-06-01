@@ -21,31 +21,24 @@ pipeline {
                 script: [
                     $class: 'SecureGroovyScript',
                     script: '''
-                        import jenkins.model.*
-                        import hudson.model.*
-
                         def foundFlavors = []
                         try {
-                            // Get the project object
-                            def project = Jenkins.instance.getItemByFullName(JOB_NAME)
-                            // Get the workspace from the last build
-                            def workspace = project.getLastBuild()?.getWorkspace()
+                            // Use the environment variable for the workspace directly
+                            def workspacePath = System.getenv("WORKSPACE") ?: "/var/jenkins_home/workspace/${JOB_NAME}"
+                            def gradleFile = new File(workspacePath, "android/app/build.gradle.kts")
                             
-                            if (workspace != null) {
-                                def gradleFile = workspace.child("android/app/build.gradle.kts")
-                                if (gradleFile.exists()) {
-                                    def text = gradleFile.readToString()
-                                    def matcher = text =~ /create\\("([^"]+)"\\)/
-                                    while (matcher.find()) {
-                                        def f = matcher.group(1)
-                                        if (!["release", "debug", "config"].contains(f)) {
-                                            foundFlavors << f
-                                        }
+                            if (gradleFile.exists()) {
+                                def text = gradleFile.text
+                                def matcher = text =~ /create\\("([^"]+)"\\)/
+                                while (matcher.find()) {
+                                    def f = matcher.group(1)
+                                    if (!["release", "debug", "config"].contains(f)) {
+                                        foundFlavors << f
                                     }
                                 }
                             }
                         } catch (Exception e) {
-                            // Handle potential access issues silently
+                            // Handle potential access issues
                         }
                         return foundFlavors.unique().sort()
                     ''',
