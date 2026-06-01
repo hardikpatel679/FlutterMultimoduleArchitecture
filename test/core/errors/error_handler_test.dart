@@ -27,7 +27,9 @@ void main() {
 
     test('should return custom app exception message', () {
       const message = 'Custom error';
-      final result = ErrorHandler.getErrorMessage(ServerException(message));
+      // Use UnknownException because it is not explicitly handled in the if-else chain
+      // so it will fall through to return error.message
+      final result = ErrorHandler.getErrorMessage(UnknownException(message));
       expect(result, message);
     });
 
@@ -39,7 +41,8 @@ void main() {
     test('should handle TypeError', () {
       final typeError = TypeError();
       final result = ErrorHandler.getErrorMessage(typeError);
-      expect(result.contains('Mapping error'), true);
+      // AppStrings.errMapping is 'Data mapping error: {error}'
+      expect(result.contains('mapping error'), true);
     });
   });
 }

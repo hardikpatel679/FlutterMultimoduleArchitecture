@@ -34,24 +34,26 @@ pipeline {
                                 jobName = vars.get('project').fullName
                             }
                             
-                            if (jobName == null) return ["Error: Job name not found. Available keys: " + vars.keySet()]
+                            if (jobName == null) return ["Error: Job name not found"]
                             
                             def job = Jenkins.get().getItemByFullName(jobName)
                             if (job == null) return ["Error: Job not found: " + jobName]
                             
-                            def lastBuild = job.getLastBuild()
-                            if (lastBuild == null) return ["Error: No previous build found for " + jobName]
-                            
-                            // Specific fix for Pipeline jobs: find workspace through Actions
                             def workspace = null
-                            for (action in lastBuild.getActions()) {
-                                if (action.getClass().getName().contains("WorkspaceAction")) {
-                                    workspace = action.getWorkspace()
-                                    break
+                            def build = job.getLastBuild()
+                            
+                            // Iterate back through builds to find one with a valid workspace
+                            while (build != null && workspace == null) {
+                                for (action in build.getActions()) {
+                                    if (action.getClass().getName().contains("WorkspaceAction")) {
+                                        workspace = action.getWorkspace()
+                                        break
+                                    }
                                 }
+                                if (workspace == null) build = build.getPreviousBuild()
                             }
 
-                            if (workspace == null) return ["Error: No workspace found for " + jobName]
+                            if (workspace == null) return ["Error: No workspace found. Run build once."]
                             
                             def gradleFile = workspace.child("android/app/build.gradle.kts")
                             if (!gradleFile.exists()) return ["Error: android/app/build.gradle.kts not found"]
