@@ -276,7 +276,8 @@ pipeline {
 
     post {
         always {
-            cleanWs()
+            // Commented out to allow dynamic flavor detection to find the workspace
+            // cleanWs()
         }
     }
 }
