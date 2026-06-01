@@ -231,7 +231,8 @@ pipeline {
             }
             post {
                 success {
-                    archiveArtifacts artifacts: 'build/app/outputs/flutter-apk/*.apk', fingerprint: true
+                    // Archive all APKs found in the build directory
+                    archiveArtifacts artifacts: '**/build/**/outputs/flutter-apk/*.apk', fingerprint: true
                 }
             }
         }
@@ -243,8 +244,12 @@ pipeline {
             steps {
                 script {
                     try {
-                        echo "Building iOS IPA for flavor: ${env.SELECTED_FLAVOR}"
-                        sh "flutter build ipa --flavor ${env.SELECTED_FLAVOR} --${env.SELECTED_VARIANT} --no-codesign"
+                        echo "Building iOS for flavor: ${env.SELECTED_FLAVOR}"
+                        // Build the iOS app bundle
+                        sh "flutter build ios --flavor ${env.SELECTED_FLAVOR} --${env.SELECTED_VARIANT} --no-codesign"
+                        
+                        // Package the .app into a ZIP so you have a downloadable build artifact
+                        sh "cd build/ios/iphoneos && zip -r ../../../Runner-iOS-${env.SELECTED_FLAVOR}.zip Runner.app"
                     } catch (Exception e) {
                         currentBuild.description = "Failed at Build iOS: ${e.message}"
                         error("iOS Build failed.")
@@ -253,7 +258,9 @@ pipeline {
             }
             post {
                 success {
-                    archiveArtifacts artifacts: 'build/ios/ipa/*.ipa', allowEmptyArchive: true, fingerprint: true
+                    // Archive the ZIP and the xcarchive
+                    archiveArtifacts artifacts: '*.zip', fingerprint: true
+                    archiveArtifacts artifacts: 'build/ios/archive/*.xcarchive/**', allowEmptyArchive: true, fingerprint: true
                 }
             }
         }
