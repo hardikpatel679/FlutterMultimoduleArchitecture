@@ -12,74 +12,32 @@ pipeline {
         activeChoice(
             name: 'FLAVOR',
             choiceType: 'PT_SINGLE_SELECT',
-            description: 'Select the flavor to build (dynamically fetched from code).',
+            description: 'Select the flavor to build.',
             script: [
                 $class: 'GroovyScript',
                 script: [
                     $class: 'SecureGroovyScript',
                     script: '''
-                        def foundFlavors = []
+                        def flavors = []
                         try {
-                            // Try to find workspace path
-                            def workspacePath = null
+                            // Professional path detection: Priority Workspace -> Hardcoded Fallback
+                            def path = System.getenv("WORKSPACE") ?: "/Users/hardikp/.jenkins/workspace/FlutterMultimoduleArchitecture"
+                            def gradleFile = new File(path, "android/app/build.gradle.kts")
                             
-                            // 1. Try environment variable (rarely available in params script)
-                            workspacePath = System.getenv("WORKSPACE")
-                            
-                            // 2. Try Jenkins API via binding variables
-                            if (workspacePath == null) {
-                                try {
-                                    def jobName = null
-                                    if (binding.variables.containsKey("JOB_NAME")) {
-                                        jobName = binding.variables.get("JOB_NAME")
-                                    } else if (binding.variables.containsKey("jenkinsProject")) {
-                                        jobName = binding.variables.get("jenkinsProject").fullName
-                                    }
-                                    
-                                    if (jobName != null) {
-                                        def job = jenkins.model.Jenkins.instance.getItemByFullName(jobName)
-                                        def build = job?.getLastBuild()
-                                        while (build != null && workspacePath == null) {
-                                            for (action in build.getActions()) {
-                                                if (action.class.name.contains("WorkspaceAction")) {
-                                                    def ws = action.getWorkspace()
-                                                    if (ws != null && ws.exists()) {
-                                                        workspacePath = ws.getRemote()
-                                                        break
-                                                    }
-                                                }
-                                            }
-                                            build = build.getPreviousBuild()
-                                        }
-                                    }
-                                } catch (e) { }
-                            }
-                            
-                            // 3. Fallback to hardcoded path from build logs
-                            if (workspacePath == null) {
-                                workspacePath = "/Users/hardikp/.jenkins/workspace/FlutterMultimoduleArchitecture"
-                            }
-                            
-                            // Parse the file using Jenkins sandbox-friendly methods if possible
-                            // However, Active Choices usually requires these signatures:
-                            if (workspacePath != null) {
-                                def gradleFile = new java.io.File(workspacePath, "android/app/build.gradle.kts")
-                                if (gradleFile.exists()) {
-                                    def text = gradleFile.text
-                                    // Robust regex
-                                    def matcher = text =~ /create\\s*\\(\\s*["']([^"']+)["']\\s*\\)/
-                                    while (matcher.find()) {
-                                        def f = matcher.group(1)
-                                        if (!["release", "debug", "config", "implementation", "test"].contains(f)) {
-                                            foundFlavors.add(f)
-                                        }
+                            if (gradleFile.exists()) {
+                                // Optimized regex to capture flavor names from Kotlin DSL
+                                def matcher = gradleFile.text =~ /create\\s*\\(\\s*["']([^"']+)["']\\s*\\)/
+                                while (matcher.find()) {
+                                    def f = matcher.group(1)
+                                    // Filter out non-flavor Gradle configurations
+                                    if (!["release", "debug", "config", "implementation", "test"].contains(f)) {
+                                        flavors.add(f)
                                     }
                                 }
                             }
-                        } catch (Exception e) {
-                            // Ignore and return defaults
-                        }
-                        return foundFlavors.unique().sort() ?: ["dev", "prod", "mock"]
+                        } catch (Exception e) { /* Fallback to defaults on any error */ }
+                        
+                        return flavors.unique().sort() ?: ["dev", "prod", "mock"]
                     ''',
                     sandbox: true
                 ],
