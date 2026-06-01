@@ -34,7 +34,7 @@ pipeline {
                                 if (gradleFile.exists()) {
                                     def text = gradleFile.readToString()
                                     // Use character classes [ ( ] and [ ) ] to avoid escaping issues in Jenkins
-                                    def matcher = text =~ /create[\\s]*[(][\\s]*["']([^"']+)["'][\\s]*[)]/
+                                    def matcher = text =~ /create[\\\\s]*[(][\\\\s]*["']([^"']+)["'][\\\\s]*[)]/
                                     while (matcher.find()) {
                                         def f = matcher.group(1)
                                         // Ignore standard Gradle configurations
