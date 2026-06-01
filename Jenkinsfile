@@ -24,7 +24,7 @@ pipeline {
                         import jenkins.model.*
                         import hudson.model.*
 
-                        def flavors = ["dev", "prod", "mock"] // Default fallbacks
+                        def foundFlavors = []
                         try {
                             // Get the project object
                             def project = Jenkins.instance.getItemByFullName(JOB_NAME)
@@ -36,28 +36,24 @@ pipeline {
                                 if (gradleFile.exists()) {
                                     def text = gradleFile.readToString()
                                     def matcher = text =~ /create\\("([^"]+)"\\)/
-                                    def foundFlavors = []
                                     while (matcher.find()) {
                                         def f = matcher.group(1)
                                         if (!["release", "debug", "config"].contains(f)) {
                                             foundFlavors << f
                                         }
                                     }
-                                    if (foundFlavors) {
-                                        flavors = foundFlavors
-                                    }
                                 }
                             }
                         } catch (Exception e) {
-                            // If API access fails, it will return the default 'flavors' list
+                            // Handle potential access issues silently
                         }
-                        return flavors.unique().sort()
+                        return foundFlavors.unique().sort()
                     ''',
                     sandbox: true
                 ],
                 fallbackScript: [
                     $class: 'SecureGroovyScript',
-                    script: 'return ["dev", "prod", "mock"]',
+                    script: 'return []',
                     sandbox: true
                 ]
             ]
