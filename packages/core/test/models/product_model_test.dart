@@ -50,7 +50,7 @@ void main() {
       expect(product.id, 1);
       expect(product.title, "Essence Mascara Lash Princess");
       expect(product.dimensions, isA<DimensionModel>());
-      expect(product.dimensions.width, "23.17");
+      expect(product.dimensions.width, 23.17);
       expect(product.reviews, isA<List<ReviewModel>>());
       expect(product.reviews.length, 1);
       expect(product.reviews.first.reviewerName, "John Doe");
@@ -61,9 +61,9 @@ void main() {
     test('fromJson should return a valid DimensionModel', () {
       final json = {"width": "10.0", "height": "20.0", "depth": "30.0"};
       final dimensions = DimensionModel.fromJson(json);
-      expect(dimensions.width, "10.0");
-      expect(dimensions.height, "20.0");
-      expect(dimensions.depth, "30.0");
+      expect(dimensions.width, 10.0);
+      expect(dimensions.height, 20.0);
+      expect(dimensions.depth, 30.0);
     });
   });
 
