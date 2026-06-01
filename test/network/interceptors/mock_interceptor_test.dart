@@ -31,7 +31,10 @@ void main() {
       final options = RequestOptions(path: '/login');
 
       // Act
-      await interceptor.onRequest(options, handler);
+      interceptor.onRequest(options, handler);
+      // Since it has an async delay internally but returns void, we might need a small delay here 
+      // or use a Completer in the mock handler to wait for the resolve call.
+      await Future.delayed(const Duration(milliseconds: 1000));
 
       // Assert
       verify(() => handler.resolve(any(that: isA<Response>()))).called(1);
@@ -42,7 +45,7 @@ void main() {
       final options = RequestOptions(path: '/real-api');
 
       // Act
-      await interceptor.onRequest(options, handler);
+      interceptor.onRequest(options, handler);
 
       // Assert
       verify(() => handler.next(options)).called(1);
