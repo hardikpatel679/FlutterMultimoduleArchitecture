@@ -25,13 +25,14 @@ pipeline {
                         def foundFlavors = []
                         try {
                             def jobName = null
-                            if (binding.hasVariable('JOB_NAME')) {
-                                jobName = JOB_NAME
-                            } else if (binding.hasVariable('project')) {
-                                jobName = project.fullName
+                            def vars = binding.variables
+                            if (vars.containsKey('JOB_NAME')) {
+                                jobName = vars.get('JOB_NAME')
+                            } else if (vars.containsKey('project')) {
+                                jobName = vars.get('project').fullName
                             }
                             
-                            if (jobName == null) return ["Error: Job name not found. Available keys: " + binding.variables.keySet()]
+                            if (jobName == null) return ["Error: Job name not found. Available keys: " + vars.keySet()]
                             
                             def job = Jenkins.get().getItemByFullName(jobName)
                             if (job == null) return ["Error: Job not found: " + jobName]
@@ -138,12 +139,19 @@ pipeline {
                         echo "--- Running Unit Tests and Checking Coverage ---"
                         sh 'flutter test --coverage'
                         
-                        // Robust Groovy-based LCOV parser (does not require 'lcov' tool installed)
-                        def lcovFile = readFile('coverage/lcov.info')
+                        // Use a more CPS-friendly way to parse the file
+                        def lcovContent = readFile('coverage/lcov.info')
+                        if (!lcovContent) {
+                            error("coverage/lcov.info is empty or not found")
+                        }
+
                         def linesFound = 0
                         def linesHit = 0
                         
-                        lcovFile.eachLine { line ->
+                        // Split by newline and iterate
+                        def lines = lcovContent.split('\n')
+                        for (int i = 0; i < lines.length; i++) {
+                            def line = lines[i].trim()
                             if (line.startsWith('LF:')) {
                                 linesFound += (line.split(':')[1] as Integer)
                             } else if (line.startsWith('LH:')) {
@@ -152,7 +160,7 @@ pipeline {
                         }
                         
                         if (linesFound == 0) {
-                            error("No coverage data found in coverage/lcov.info")
+                            error("No coverage data found in coverage/lcov.info (LF count is 0)")
                         }
                         
                         float coverage = (linesHit / linesFound) * 100
