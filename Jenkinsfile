@@ -171,8 +171,9 @@ pipeline {
             steps {
                 script {
                     try {
-                        echo "--- Running Functional Verification Tests ---"
-                        sh 'flutter test integration_test'
+                        echo "--- Running Functional Verification Tests for flavor: ${env.SELECTED_FLAVOR} ---"
+                        // Specify flavor to avoid building extra APKs for all flavors
+                        sh "flutter test integration_test --flavor ${env.SELECTED_FLAVOR}"
                     } catch (Exception _) {
                         currentBuild.description = "Failed at FVT: UI/Integration Tests failed."
                         error("Integration Testing (FVT) failed.")

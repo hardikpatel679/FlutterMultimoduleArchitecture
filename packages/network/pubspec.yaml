@@ -17,3 +17,8 @@ dependencies:
   domain:
     path: ../domain
   graphql_flutter: ^5.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mocktail: ^1.0.4
