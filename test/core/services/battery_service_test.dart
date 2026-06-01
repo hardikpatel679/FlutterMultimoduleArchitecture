@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:core/services/battery_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late BatteryService batteryService;
 
   setUp(() {
