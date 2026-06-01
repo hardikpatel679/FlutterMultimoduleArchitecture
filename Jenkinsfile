@@ -42,25 +42,31 @@ pipeline {
                             def workspace = null
                             def build = job.getLastBuild()
                             
-                            // Iterate back through builds to find one with a valid workspace
+                            // Iterate back through builds to find one with a valid workspace directory that still exists
                             while (build != null && workspace == null) {
+                                def tempWs = null
                                 for (action in build.getActions()) {
                                     if (action.getClass().getName().contains("WorkspaceAction")) {
-                                        workspace = action.getWorkspace()
+                                        tempWs = action.getWorkspace()
                                         break
                                     }
                                 }
-                                if (workspace == null) build = build.getPreviousBuild()
+                                if (tempWs != null && tempWs.exists()) {
+                                    workspace = tempWs
+                                } else {
+                                    build = build.getPreviousBuild()
+                                }
                             }
 
                             if (workspace == null) return ["Error: No workspace found. Run build once."]
                             
                             def gradleFile = workspace.child("android/app/build.gradle.kts")
-                            if (!gradleFile.exists()) return ["Error: android/app/build.gradle.kts not found"]
+                            if (!gradleFile.exists()) return ["Error: android/app/build.gradle.kts not found in " + workspace.getRemote()]
                             
                             def text = gradleFile.readToString()
-                            // Simple and effective regex for Kotlin DSL flavors
-                            def matcher = text =~ /create\\s*\\(\\s*["'](.+?)["']\\s*\\)/
+                            // Correct regex for Groovy triple-single-quoted strings
+                            // We use character classes for parens to avoid escaping issues
+                            def matcher = text =~ /create[ \t]*[(][ \t]*["'](.+?)["'][ \t]*[)]/
                             while (matcher.find()) {
                                 def f = matcher.group(1)
                                 if (!["release", "debug", "config", "implementation", "test", "android"].contains(f)) {
