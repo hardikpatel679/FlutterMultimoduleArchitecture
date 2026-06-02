@@ -228,13 +228,25 @@ pipeline {
             }
             post {
                 success {
-                    archiveArtifacts artifacts: 'Runner-iOS-*.zip', fingerprint: true
+                    // Archive ONLY the zip file matching the currently selected flavor
+                    archiveArtifacts artifacts: "Runner-iOS-${env.SELECTED_FLAVOR}.zip", fingerprint: true
                 }
             }
         }
     }
 
     post {
+        success {
+            script {
+                // Clean up other flavors' artifacts to keep the workspace tidy for the NEXT run
+                // iOS ZIPs
+                sh "find . -name 'Runner-iOS-*.zip' ! -name 'Runner-iOS-${env.SELECTED_FLAVOR}.zip' -delete || true"
+                
+                // Android APKs (only keeping the one matching current selection)
+                def currentApkName = "app-${env.SELECTED_FLAVOR}-${env.SELECTED_VARIANT}.apk"
+                sh "find build/app/outputs/flutter-apk -name 'app-*.apk' ! -name '${currentApkName}' -delete || true"
+            }
+        }
         always {
             echo "--- Pipeline finished. Summary for ${env.SELECTED_FLAVOR}-${env.SELECTED_VARIANT} ---"
             echo "Release Notes: ${params.RELEASE_NOTES}"
